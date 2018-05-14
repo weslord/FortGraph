@@ -51,15 +51,24 @@ function update() {
   circles.exit().remove();
 
   var enter = circles.enter().append("circle")
-      .attr('r', 5)
-      .attr('cx', function (d) {return d.x})
-      .attr('cy', function (d) {return d.y})
-      .on('click', circleClick);
+      .attr('r', 25)
+      .on('click', circleClick)
+      .call(d3.drag()
+        .on("drag", circleDrag)
+      );
 
   circles = circles.merge(enter);
+
+  tick();
 }
 
-function svgClick () {
+function tick() {
+  circles
+      .attr('cx', function (d) {return d.x})
+      .attr('cy', function (d) {return d.y})
+}
+
+function svgClick() {
   var x = d3.mouse(this)[0];
   var y = d3.mouse(this)[1];
 
@@ -68,10 +77,19 @@ function svgClick () {
   update();
 }
 
-function circleClick (d, i) {
+function circleClick(d, i) {
   vertices.splice(vertices.indexOf(d), 1);
 
   update();
 }
+
+function circleDrag(d) {
+  var vertex = vertices[vertices.indexOf(d)];
+  vertex.x = d3.mouse(this)[0];
+  vertex.y = d3.mouse(this)[1];
+
+  tick();
+}
+
 </script>
 </body>
