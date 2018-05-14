@@ -32,9 +32,23 @@
 
   var circles = svg.selectAll("circle");
 
-  vertices = [{x: width/2, y: height/2}]
+  var vertices = [{x: width/2, y: height/2}]
 
   svg.on('dblclick', svgClick);
+}
+
+function update() {
+  circles = svg.selectAll("circle").data(vertices, function(d){return ''+d.x+'x'+d.y});
+
+  circles.exit().remove();
+
+  var enter = circles.enter().append("circle")
+      .attr('r', 5)
+      .attr('cx', function (d) {return d.x})
+      .attr('cy', function (d) {return d.y});
+  circles = circles.merge(enter);
+
+  circles.on('click', circleClick);
 }
 
 function svgClick () {
@@ -43,29 +57,13 @@ function svgClick () {
 
   vertices.push({x: x, y: y});
 
-  circles = svg.selectAll("circle").data(vertices, function(d){return ''+d.x+'x'+d.y});
-  var enter = circles.enter().append("circle")
-      .attr('r', 5)
-      .attr('cx', function (d) {return d.x})
-      .attr('cy', function (d) {return d.y});
-  circles = circles.merge(enter);
-
-  //listeners get redefined in multiple places...
-  circles.on('click', circleClick);
+  update();
 }
 
 function circleClick (d, i) {
-  console.log('circle clicked');
-  console.log(d);
-  console.log(i);
-
   vertices.splice(i, 1);
 
-  circles = svg.selectAll("circle").data(vertices, function(d){return ''+d.x+'x'+d.y});
-  circles.exit().remove();
-
-  //listeners get redefined in multiple places...
-  circles.on('click', circleClick);
+  update();
 }
 </script>
 </body>
