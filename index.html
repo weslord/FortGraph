@@ -53,10 +53,10 @@ function update() {
   var enter = circles.enter().append("circle")
       .attr('r', 5)
       .attr('cx', function (d) {return d.x})
-      .attr('cy', function (d) {return d.y});
-
-  circles = circles.merge(enter)
+      .attr('cy', function (d) {return d.y})
       .on('click', circleClick);
+
+  circles = circles.merge(enter);
 }
 
 function svgClick () {
@@ -69,8 +69,7 @@ function svgClick () {
 }
 
 function circleClick (d, i) {
-  // changing to an ID-based lookup would be more robust
-  vertices.splice(i, 1);
+  vertices.splice(vertices.indexOf(d), 1);
 
   update();
 }
