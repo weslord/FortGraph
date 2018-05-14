@@ -18,7 +18,7 @@
     height: 100%;
   }
   </style>
-  <script src='lib/d3.js'></script>
+  <script src='lib/d3.v5.js'></script>
 </head>
 <body>
 <script>
@@ -30,12 +30,12 @@
       .attr('width', width)
       .attr('height', height);
 
-  var circles = svg.selectAll("circle");
+  var circles = svg.selectAll('circle');
 
   var vertices = [
-    {id: 0, x: width/2, y: height/2},
-    {id: 1, x: width/4, y: height/6},
-    {id: 2, x: width/3, y: height/4}
+    {id: 0, x: width * 0.2, y: height * 0.4},
+    {id: 1, x: width * 0.5, y: height * 0.5},
+    {id: 2, x: width * 0.8, y: height * 0.6}
   ];
   var lastVertexId = 2;
   var edges = [{source: 0, target: 1}];
@@ -46,18 +46,21 @@
 }
 
 function update() {
-  circles = svg.selectAll("circle").data(vertices, function(d){return d.id});
+  circles = svg.selectAll('circle').data(vertices, function(d){return d.id});
 
   circles.exit().remove();
 
-  var enter = circles.enter().append("circle")
+  var enter = circles.enter().append('circle')
       .attr('r', 25)
       .on('click', circleClick)
       .call(d3.drag()
-        .on("drag", circleDrag)
+        .on('drag', circleDrag)
       );
 
   circles = circles.merge(enter);
+
+
+  lines = svg.selectAll('line')
 
   tick();
 }
