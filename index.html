@@ -32,13 +32,21 @@
 
   var circles = svg.selectAll("circle");
 
-  var vertices = [{x: width/2, y: height/2}]
+  var vertices = [
+    {id: 0, x: width/2, y: height/2},
+    {id: 1, x: width/4, y: height/6},
+    {id: 2, x: width/3, y: height/4}
+  ];
+  var lastVertexId = 2;
+  var edges = [{source: 0, target: 1}];
 
   svg.on('dblclick', svgClick);
+
+  update();
 }
 
 function update() {
-  circles = svg.selectAll("circle").data(vertices, function(d){return ''+d.x+'x'+d.y});
+  circles = svg.selectAll("circle").data(vertices, function(d){return d.id});
 
   circles.exit().remove();
 
@@ -46,21 +54,22 @@ function update() {
       .attr('r', 5)
       .attr('cx', function (d) {return d.x})
       .attr('cy', function (d) {return d.y});
-  circles = circles.merge(enter);
 
-  circles.on('click', circleClick);
+  circles = circles.merge(enter)
+      .on('click', circleClick);
 }
 
 function svgClick () {
   var x = d3.mouse(this)[0];
   var y = d3.mouse(this)[1];
 
-  vertices.push({x: x, y: y});
+  vertices.push({id: ++lastVertexId, x: x, y: y});
 
   update();
 }
 
 function circleClick (d, i) {
+  // changing to an ID-based lookup would be more robust
   vertices.splice(i, 1);
 
   update();
