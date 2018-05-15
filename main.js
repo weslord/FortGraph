@@ -18,14 +18,13 @@
     {id: 1, x: width * 0.5, y: height * 0.5},
     {id: 2, x: width * 0.8, y: height * 0.6}
   ];
-  //var edges = [{source: 0, target: 1}];
-  // (can return to id-based edges when link force activated)
-  var edges = [{source: vertices[0], target: vertices[1]}];
+  var edges = [{source: 0, target: 1}];
 
   var source = null,
       target = null;
 
   var dragging = true;
+  var ctrlPressed = false;
   var ctrlPresses = 0;
 
   svg.on('dblclick', svgClick);
@@ -34,23 +33,22 @@
     .on('keydown', windowKeydown)
     .on('keyup', windowKeyup);
 
+  var simulation = d3.forceSimulation()
+      .force('link', d3.forceLink().id(function(d) {return d.id;}))
+      .force('charge', d3.forceManyBody())
+      .on('tick', tick);
+
   update();
 }
 
 function update() {
   lines = lines.data(edges);
-
   var enter = lines.enter().append('line');
-
   lines.exit().remove();
-
   lines = lines.merge(enter);
 
-
   circles = circles.data(vertices, function(d) {return d.id});
-
   circles.exit().remove();
-
   var enter = circles.enter().append('circle')
       .on('mouseover', circleHover)
       .on('mouseout', circleUnHover)
@@ -60,12 +58,13 @@ function update() {
         .on('drag', circleDragProgress)
         .on('end', circleDragEnd)
       );
-
   circles = circles.merge(enter)
       .raise();
 
+  simulation.nodes(vertices);
+  simulation.force('link').links(edges).distance(100).strength(0.1);
+  simulation.alpha(0.3).restart();
 
-  tick();
 }
 
 function tick() {
@@ -91,6 +90,8 @@ function svgClick() {
   update();
 }
 
+// this is no longer firing?
+// being prevented by the drag handler?
 function circleClick(d) {
   vertices.splice(vertices.indexOf(d), 1);
 
@@ -109,13 +110,12 @@ function circleDragStart(d) {
   } else {
     dragging = false; // drawing new edge
   }
-
-  tick();
 }
+
 function circleDragProgress(d) {
   if (dragging) {
-    source.x = d3.mouse(this)[0];
-    source.y = d3.mouse(this)[1];
+    source.fx = d3.mouse(this)[0];
+    source.fy = d3.mouse(this)[1];
   } else {
     if (target) {
       tx = target.x;
@@ -132,7 +132,7 @@ function circleDragProgress(d) {
         .attr('y2', function(d) {return ty;});
   }
 
-  tick();
+  simulation.alpha(0.3).restart();
 }
 
 function circleDragEnd(d) {
@@ -143,14 +143,15 @@ function circleDragEnd(d) {
     if (target) {
       if (!edgeExists(source, target)) {
         edges.push({source: source, target: target});
-        update();
       }
     }
   }
 
+  source.fx = null;
+  source.fy = null;
   source = null;
 
-  tick();
+  update();
 }
 
 function circleHover(d) {
@@ -165,7 +166,6 @@ function edgeExists(source, target) {
   for (var i = 0; i < edges.length; i++) {
     if ((source === edges[i].source && target === edges[i].target) ||
         (source === edges[i].target && target === edges[i].source)) {
-      console.log('dupe');
       return true;
     }
   }
