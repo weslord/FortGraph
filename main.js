@@ -21,21 +21,24 @@
   var edges = [{source: 0, target: 1}];
 
   var source = null,
-      target = null;
+      target = null,
+      line   = null;
 
   var dragging = true;
   var ctrlPressed = false;
   var ctrlPresses = 0;
 
-  svg.on('dblclick', svgClick);
+  svg.on('dblclick', newVertexAtMouse);
 
   d3.select(window)
     .on('keydown', windowKeydown)
     .on('keyup', windowKeyup);
 
   var simulation = d3.forceSimulation()
+      .force('x', d3.forceX(width/2))
+      .force('y', d3.forceY(height/2))
       .force('link', d3.forceLink().id(function(d) {return d.id;}))
-      .force('charge', d3.forceManyBody())
+      .force('charge', d3.forceManyBody().strength(-100))
       .on('tick', tick);
 
   update();
@@ -43,7 +46,9 @@
 
 function update() {
   lines = lines.data(edges);
-  var enter = lines.enter().append('line');
+  var enter = lines.enter().append('line')
+      .on('mouseover', lineHover)
+      .on('mouseout', lineUnHover);
   lines.exit().remove();
   lines = lines.merge(enter);
 
@@ -52,7 +57,6 @@ function update() {
   var enter = circles.enter().append('circle')
       .on('mouseover', circleHover)
       .on('mouseout', circleUnHover)
-      .on('click', circleClick)
       .call(d3.drag()
         .on('start', circleDragStart)
         .on('drag', circleDragProgress)
@@ -62,7 +66,7 @@ function update() {
       .raise();
 
   simulation.nodes(vertices);
-  simulation.force('link').links(edges).distance(100).strength(0.1);
+  simulation.force('link').links(edges).distance(50).strength(0.1)
   simulation.alpha(0.3).restart();
 
 }
@@ -79,9 +83,8 @@ function tick() {
       .attr('cy', function (d) {return d.y})
 }
 
-// rename these event response functions to what they functionally DO?
-// eg: newVertex(), or deleteVertex()
-function svgClick() {
+// if control-clicking, should start a control-drag event...
+function newVertexAtMouse() {
   var x = d3.mouse(this)[0];
   var y = d3.mouse(this)[1];
 
@@ -90,16 +93,24 @@ function svgClick() {
   update();
 }
 
-// this is no longer firing?
-// being prevented by the drag handler?
-function circleClick(d) {
-  vertices.splice(vertices.indexOf(d), 1);
+function deleteVertex(vertex) {
+  if (vertex) {
+    vertices.splice(vertices.indexOf(vertex), 1);
 
-  edges = edges.filter(function (edge) {
-    return (edge.source !== d && edge.target !== d);
-  });
+    edges = edges.filter(function (edge) {
+      return (edge.source !== vertex && edge.target !== vertex);
+    });
 
-  update();
+    update();
+  }
+}
+
+function deleteEdge(edge) {
+  if (edge) {
+    edges.splice(edges.indexOf(edge), 1);
+
+    update();
+  }
 }
 
 function circleDragStart(d) {
@@ -139,17 +150,16 @@ function circleDragEnd(d) {
   linePreview
       .style('display', 'none');
 
-  if (!dragging) {
+  if (dragging) {
+    source.fx = null;
+    source.fy = null;
+  } else {
     if (target) {
       if (!edgeExists(source, target)) {
         edges.push({source: source, target: target});
       }
     }
   }
-
-  source.fx = null;
-  source.fy = null;
-  source = null;
 
   update();
 }
@@ -160,6 +170,14 @@ function circleHover(d) {
 
 function circleUnHover(d) {
   target = null;
+}
+
+function lineHover(d) {
+  line = d;
+}
+
+function lineUnHover(d) {
+  line = null;
 }
 
 function edgeExists(source, target) {
@@ -179,7 +197,14 @@ function windowKeydown() {
     case 91: // cmd
       ctrlPresses++;
       ctrlPressed = true;
-      circles.attr('style', 'fill: #eee');
+      svg.attr('style', 'cursor: pointer');
+      break;
+    case 8:  // backspace
+    case 46: // delete
+    case 68: //d
+      deleteVertex(target);
+      deleteEdge(line);
+      target = null;
       break;
     default:
       break;
@@ -195,7 +220,7 @@ function windowKeyup() {
       if (--ctrlPresses < 1) {
         ctrlPresses = 0;
         ctrlPressed = false;
-        circles.attr('style', 'fill: #fff');
+        svg.attr('style', 'cursor: default');
       }
       break;
     default:
