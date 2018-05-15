@@ -6,7 +6,7 @@
       .attr('width', width)
       .attr('height', height);
 
-  var circles = svg.selectAll('circle');
+  var buildings = svg.selectAll('g');
   var lines   = svg.selectAll('line');
 
   var linePreview = svg
@@ -14,15 +14,18 @@
 
   var lastVertexId = 2;
   var vertices = [
-    {id: 0, x: width * 0.2, y: height * 0.4},
-    {id: 1, x: width * 0.5, y: height * 0.5},
-    {id: 2, x: width * 0.8, y: height * 0.6}
+    {id: 'Stone', type: 'stockpile'},
+    {id: 'Mason', type: 'workshop'},
+    {id: 'Crafts', type: 'workshop'}
   ];
-  var edges = [{source: 0, target: 1}];
+  var edges = [
+    {source: 'Stone', target: 'Mason'},
+    {source: 'Stone', target: 'Crafts'}
+  ];
 
   var source = null,
       target = null,
-      line   = null;
+      line   = null; // rename this (represents an edge)
 
   var dragging = true;
   var ctrlPressed = false;
@@ -38,8 +41,11 @@
       .force('x', d3.forceX(width/2))
       .force('y', d3.forceY(height/2))
       .force('link', d3.forceLink().id(function(d) {return d.id;}))
-      .force('charge', d3.forceManyBody().strength(-100))
+      .force('charge', d3.forceManyBody().strength(-200))
       .on('tick', tick);
+
+  simulation.force('x').strength(0.1);
+  simulation.force('y').strength(0.2);
 
   update();
 }
@@ -52,21 +58,40 @@ function update() {
   lines.exit().remove();
   lines = lines.merge(enter);
 
-  circles = circles.data(vertices, function(d) {return d.id});
-  circles.exit().remove();
-  var enter = circles.enter().append('circle')
-      .on('mouseover', circleHover)
-      .on('mouseout', circleUnHover)
+  buildings = buildings.data(vertices, function(d) {return d.id});
+  buildings.exit().remove();
+  var enter = buildings.enter().append('g')
+      .on('mouseover', bldgHover)
+      .on('mouseout', bldgUnHover)
       .call(d3.drag()
-        .on('start', circleDragStart)
-        .on('drag', circleDragProgress)
-        .on('end', circleDragEnd)
+        .on('start', bldgDragStart)
+        .on('drag', bldgDragProgress)
+        .on('end', bldgDragEnd)
       );
-  circles = circles.merge(enter)
+  enter.append('text')
+      .text(function(d) {return d.id;})
+      .attr('transform', function() {
+       var b = this.getBBox();
+       return 'translate(-'+ b.width/2 +','+ b.height/2 +')';
+      });
+  enter.append('rect')
+      .attr('width', function(d) {
+        return this.previousElementSibling.getBBox().width + 5;
+      })
+      .attr('height', function(d) {
+        return this.previousElementSibling.getBBox().height + 5;
+      })
+      .attr('transform', function() {
+       var b = this.previousElementSibling.getBBox();
+       return 'translate(-'+ b.width/2 +',-'+ b.height/2 +')';
+      });
+
+  buildings = buildings.merge(enter)
       .raise();
+  d3.selectAll('text').raise();
 
   simulation.nodes(vertices);
-  simulation.force('link').links(edges).distance(50).strength(0.1)
+  simulation.force('link').links(edges).distance(150).strength(0.1)
   simulation.alpha(0.3).restart();
 
 }
@@ -78,9 +103,9 @@ function tick() {
       .attr('x2', function(d) {return d.target.x})
       .attr('y2', function(d) {return d.target.y});
 
-  circles
-      .attr('cx', function (d) {return d.x})
-      .attr('cy', function (d) {return d.y})
+  buildings.attr('transform', function(d) {
+    return 'translate(' + d.x + ',' + d.y + ')';
+  });
 }
 
 // if control-clicking, should start a control-drag event...
@@ -113,27 +138,27 @@ function deleteEdge(edge) {
   }
 }
 
-function circleDragStart(d) {
-  source = vertices[vertices.indexOf(d)];
+function bldgDragStart(d) {
+  source = d;
 
   if (!ctrlPressed) {
-    dragging = true; // dragging the circle
+    dragging = true; // dragging the bldg
   } else {
     dragging = false; // drawing new edge
   }
 }
 
-function circleDragProgress(d) {
+function bldgDragProgress(d) {
   if (dragging) {
-    source.fx = d3.mouse(this)[0];
-    source.fy = d3.mouse(this)[1];
+    source.fx = d3.event.x;
+    source.fy = d3.event.y;
   } else {
     if (target) {
       tx = target.x;
       ty = target.y;
     } else {
-      tx = d3.mouse(this)[0];
-      ty = d3.mouse(this)[1];
+      tx = d3.mouse(svg.node())[0];
+      ty = d3.mouse(svg.node())[1];
     }
     linePreview
         .style('display', 'inline')
@@ -146,7 +171,7 @@ function circleDragProgress(d) {
   simulation.alpha(0.3).restart();
 }
 
-function circleDragEnd(d) {
+function bldgDragEnd(d) {
   linePreview
       .style('display', 'none');
 
@@ -164,11 +189,11 @@ function circleDragEnd(d) {
   update();
 }
 
-function circleHover(d) {
+function bldgHover(d) {
   target = d;
 }
 
-function circleUnHover(d) {
+function bldgUnHover(d) {
   target = null;
 }
 

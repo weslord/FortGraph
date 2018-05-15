@@ -12,14 +12,13 @@ body {
   height: 100%;
 }
 
-circle {
-  r: 8;
+rect {
   stroke: #000;
   stroke-width: 2;
   fill: #fff;
 }
 
-circle:hover {
+rect:hover {
   stroke-width: 3;
 }
 
