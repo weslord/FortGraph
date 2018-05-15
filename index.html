@@ -17,13 +17,29 @@
     width: 100%;
     height: 100%;
   }
+
+  circle {
+    r: 15;
+    stroke: #000;
+    stroke-width: 2;
+    fill: #fff;
+  }
+
+  circle:hover {
+    stroke-width: 3;
+  }
+
+  line {
+    stroke: #000;
+    stroke-width: 2;
+  }
   </style>
   <script src='lib/d3.v5.js'></script>
 </head>
 <body>
 <script>
 { // INIT
-  var width = 960,
+  var width  = 960,
       height = 500;
 
   var svg = d3.select('body').append('svg')
@@ -31,14 +47,16 @@
       .attr('height', height);
 
   var circles = svg.selectAll('circle');
+  var lines   = svg.selectAll('line');
 
+  var lastVertexId = 2;
   var vertices = [
     {id: 0, x: width * 0.2, y: height * 0.4},
     {id: 1, x: width * 0.5, y: height * 0.5},
     {id: 2, x: width * 0.8, y: height * 0.6}
   ];
-  var lastVertexId = 2;
-  var edges = [{source: 0, target: 1}];
+  //var edges = [{source: 0, target: 1}];
+  var edges = [{source: vertices[0], target: vertices[1]}];
 
   svg.on('dblclick', svgClick);
 
@@ -46,12 +64,20 @@
 }
 
 function update() {
-  circles = svg.selectAll('circle').data(vertices, function(d){return d.id});
+  lines = lines.data(edges);
+
+  var enter = lines.enter().append('line');
+
+  lines.exit().remove();
+
+  lines = lines.merge(enter);
+
+
+  circles = circles.data(vertices, function(d) {return d.id});
 
   circles.exit().remove();
 
   var enter = circles.enter().append('circle')
-      .attr('r', 25)
       .on('click', circleClick)
       .call(d3.drag()
         .on('drag', circleDrag)
@@ -60,12 +86,16 @@ function update() {
   circles = circles.merge(enter);
 
 
-  lines = svg.selectAll('line')
-
   tick();
 }
 
 function tick() {
+  lines
+      .attr('x1', function(d) {return d.source.x})
+      .attr('y1', function(d) {return d.source.y})
+      .attr('x2', function(d) {return d.target.x})
+      .attr('y2', function(d) {return d.target.y});
+
   circles
       .attr('cx', function (d) {return d.x})
       .attr('cy', function (d) {return d.y})
@@ -82,6 +112,10 @@ function svgClick() {
 
 function circleClick(d, i) {
   vertices.splice(vertices.indexOf(d), 1);
+
+  edges = edges.filter(function (edge) {
+    return (edge.source !== d && edge.target !== d);
+  });
 
   update();
 }
