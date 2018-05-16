@@ -18,7 +18,7 @@
       .attr('id', 'inspector');
   var titleInput = inspector.append('input')
       .on('change', function () {
-        selected ? selected.id = this.value : null;
+        selected ? selected.title = this.value : null;
         update();
       })
       .node();
@@ -30,15 +30,14 @@
       .node();
 
   var lastVertexId = 2;
-  // is it possible to enforce uniqueness (eg numerical id) without sacrificing useablity (eg clear source-target relationships)
   var vertices = [
-    {id: 'Stone', type: 'stockpile'},
-    {id: 'Mason', type: 'workshop'},
-    {id: 'Crafts', type: 'workshop'}
+    {id: 0, title: 'Stone', type: 'stockpile'},
+    {id: 1, title: 'Mason', type: 'workshop'},
+    {id: 2, title: 'Crafts', type: 'workshop'}
   ];
   var edges = [
-    {source: 'Stone', target: 'Mason'},
-    {source: 'Stone', target: 'Crafts'}
+    {source: '0', target: '1'},
+    {source: '0', target: '2'}
   ];
 
   var source = null,
@@ -99,7 +98,7 @@ function update() {
   lines.classed('selected', function (d) {return d.selected});
 
   buildings.selectAll('text')
-      .text(function(d) {return d.id;})
+      .text(function(d) {return d.title;})
       .attr('height', 10)
       .attr('transform', function() {
          var b = this.getBBox();
@@ -143,7 +142,7 @@ function newVertexAtMouse() {
   var x = d3.mouse(this)[0];
   var y = d3.mouse(this)[1];
 
-  var newVertex = {id: 'New #'+ ++lastVertexId, x: x, y: y};
+  var newVertex = {id: ++lastVertexId, title: 'New', type: '', x: x, y: y};
 
   vertices.push(newVertex);
   selectObj(newVertex);
@@ -257,7 +256,7 @@ function selectObj(subject) {
   if (subject) {
     subject.selected = true;
 
-    titleInput.value = subject.id;
+    titleInput.value = subject.title;
     typeInput.value = subject.type;
   } else {
     titleInput.value = '';
@@ -287,6 +286,31 @@ function edgeExists(source, target) {
       return true;
     }
   }
+}
+
+function exportGraph() {
+  var cleanEdges = edges.map(function(edge) {
+    var cleanEdge = Object.assign({}, edge);
+    cleanEdge.source = cleanEdge.source.id;
+    cleanEdge.target = cleanEdge.target.id;
+    return cleanEdge;
+  })
+
+  var cleanGraph = {vertices: vertices, edges: cleanEdges};
+  return JSON.stringify(cleanGraph);
+}
+
+function importGraph(dirtyGraph) {
+  // TODO: check for duplicate IDs
+  var graph = JSON.parse(dirtyGraph);
+
+  vertices = [];
+  edges = [];
+  update();
+
+  vertices = graph.vertices;
+  edges = graph.edges;
+  update();
 }
 
 function windowKeydown(d) {
