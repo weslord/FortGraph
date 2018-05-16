@@ -81,6 +81,7 @@ function update() {
   buildings.exit().remove();
   var enter = buildings.enter().append('g')
       .on('click', selectObj)
+      .on('dblclick', fixBldg)
       .on('mouseover', bldgHover)
       .on('mouseout', bldgUnHover)
       .call(d3.drag()
@@ -197,8 +198,10 @@ function bldgDragEnd(d) {
       .style('display', 'none');
 
   if (dragging) {
-    source.fx = null;
-    source.fy = null;
+    if (!d.fixed) {
+      source.fx = null;
+      source.fy = null;
+    }
   } else {
     if (target) {
       if (source !== target && !edgeExists(source, target)) {
@@ -229,6 +232,7 @@ function lineUnHover(d) {
 }
 
 function selectObj(subject) {
+    d3.event.stopPropagation();
     selected = subject;
 
     edges.forEach(function(edge) {
@@ -247,6 +251,19 @@ function selectObj(subject) {
   }
 
   update();
+}
+
+function fixBldg(subject) {
+  d3.event.stopPropagation();
+  if (subject && subject.fixed) {
+    subject.fixed = false;
+    subject.fx = null;
+    subject.fy = null;
+  } else if (subject) {
+    subject.fixed = true;
+    subject.fx = subject.x;
+    subject.fy = subject.y;
+  }
 }
 
 function edgeExists(source, target) {
