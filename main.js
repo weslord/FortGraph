@@ -29,7 +29,6 @@
 
   var dragging = true;
   var ctrlPressed = false;
-  var ctrlPresses = 0;
 
   svg.on('dblclick', newVertexAtMouse);
 
@@ -44,8 +43,8 @@
       .force('charge', d3.forceManyBody().strength(-200))
       .on('tick', tick);
 
-  simulation.force('x').strength(0.1);
-  simulation.force('y').strength(0.2);
+  simulation.force('x').strength(0.05);
+  simulation.force('y').strength(0.10);
 
   update();
 }
@@ -53,6 +52,7 @@
 function update() {
   lines = lines.data(edges);
   var enter = lines.enter().append('line')
+      .on('click', selectObj)
       .on('mouseover', lineHover)
       .on('mouseout', lineUnHover);
   lines.exit().remove();
@@ -61,7 +61,7 @@ function update() {
   buildings = buildings.data(vertices, function(d) {return d.id});
   buildings.exit().remove();
   var enter = buildings.enter().append('g')
-      .on('click', editLabel)
+      .on('click', selectObj)
       .on('mouseover', bldgHover)
       .on('mouseout', bldgUnHover)
       .call(d3.drag()
@@ -69,13 +69,28 @@ function update() {
         .on('drag', bldgDragProgress)
         .on('end', bldgDragEnd)
       );
-  enter.append('text')
+  enter.append('text');
+  enter.append('rect');
+
+  buildings = buildings.merge(enter);
+
+  buildings.classed('selected', function (d) {return d.selected});
+  lines.classed('selected', function (d) {return d.selected});
+
+  buildings.selectAll('text')
       .text(function(d) {return d.id;})
       .attr('transform', function() {
          var b = this.getBBox();
          return 'translate(-'+ b.width/2 +','+ b.height/2 +')';
         });
-  enter.append('rect')
+  buildings.selectAll('rect')
+      .attr('rx', 5)
+      .attr('ry', 5)
+      .attr('width', 50)
+      .attr('height', 50)
+      .attr('transform', 'translate(-25,-25)');
+
+/*
       .attr('width', function(d) {
         return this.previousElementSibling.getBBox().width + 5;
       })
@@ -86,8 +101,7 @@ function update() {
        var b = this.previousElementSibling.getBBox();
        return 'translate(-'+ b.width/2 +',-'+ b.height/2 +')';
       });
-
-  buildings = buildings.merge(enter);
+*/
 
   d3.selectAll('line').lower();
   d3.selectAll('text').raise();
@@ -120,24 +134,20 @@ function newVertexAtMouse() {
   update();
 }
 
-function deleteVertex(vertex) {
-  if (vertex) {
-    vertices.splice(vertices.indexOf(vertex), 1);
+function deleteObj(obj) {
+  if (vertices.indexOf(obj) !== -1) {
+    vertices.splice(vertices.indexOf(obj), 1);
 
     edges = edges.filter(function (edge) {
-      return (edge.source !== vertex && edge.target !== vertex);
+      return (edge.source !== obj && edge.target !== obj);
     });
-
-    update();
   }
-}
 
-function deleteEdge(edge) {
-  if (edge) {
-    edges.splice(edges.indexOf(edge), 1);
-
-    update();
+  if (edges.indexOf(obj) !== -1) {
+    edges.splice(edges.indexOf(obj), 1);
   }
+
+  update();
 }
 
 function bldgDragStart(d) {
@@ -207,6 +217,15 @@ function lineUnHover(d) {
   line = null;
 }
 
+function selectObj(subject) {
+  if (subject.selected) {
+    subject.selected = false;
+  } else {
+    subject.selected = true;
+  }
+  update();
+}
+
 function edgeExists(source, target) {
   for (var i = 0; i < edges.length; i++) {
     if ((source === edges[i].source && target === edges[i].target) ||
@@ -215,13 +234,14 @@ function edgeExists(source, target) {
     }
   }
 }
-
+var x;
 function editLabel(d) {
-  // prevent svg from firing
-  var label = prompt('Building type:')
-  if (label) {
-    d.id = label;
-    d3.select(this).select('text').text(d.id);
+  if (d) {
+    var label = prompt('Building type:')
+    if (label) {
+      d.id = label;
+      update();
+    }
   }
 }
 
@@ -231,16 +251,17 @@ function windowKeydown() {
     case 17: // ctrl
     case 18: // alt
     case 91: // cmd
-      ctrlPresses++;
       ctrlPressed = true;
       svg.attr('style', 'cursor: pointer');
       break;
     case 8:  // backspace
     case 46: // delete
-    case 68: //d
-      deleteVertex(target);
-      deleteEdge(line);
+    case 68: // d
+      svg.selectAll('.selected').each(deleteObj);
       target = null;
+      break;
+    case 69: // e
+      editLabel(target);
       break;
     default:
       break;
@@ -253,11 +274,8 @@ function windowKeyup() {
     case 17: // ctrl
     case 18: // alt
     case 91: // cmd
-      if (--ctrlPresses < 1) {
-        ctrlPresses = 0;
-        ctrlPressed = false;
-        svg.attr('style', 'cursor: default');
-      }
+      ctrlPressed = false;
+      svg.attr('style', 'cursor: default');
       break;
     default:
       break;
