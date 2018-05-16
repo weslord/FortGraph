@@ -100,17 +100,23 @@ function update() {
 
   buildings.selectAll('text')
       .text(function(d) {return d.id;})
+      .attr('height', 10)
       .attr('transform', function() {
          var b = this.getBBox();
-         return 'translate(-'+ b.width/2 +','+ b.height/2 +')';
+         return 'translate(-'+ b.width/2 +','+ 10/2 +')';
         });
   buildings.selectAll('rect')
-      .attr('stroke', function (d) {return color(d.type);})
-      .attr('rx', 5)
-      .attr('ry', 5)
-      .attr('width', 50)
-      .attr('height', 50)
-      .attr('transform', 'translate(-25,-25)');
+      .each(function(d) {
+        var b = this.parentNode.querySelector('text').getBBox();
+        var w = b.width + 5;
+        d3.select(this)
+          .attr('width', w)
+          .attr('transform', 'translate(-'+ w/2 +','+ -10 +')')
+          .attr('stroke', color(d.type))
+          .attr('rx', 5)
+          .attr('ry', 5)
+          .attr('height', 20);
+      });
 
   d3.selectAll('line').lower();
   d3.selectAll('text').raise();
