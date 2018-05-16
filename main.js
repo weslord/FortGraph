@@ -7,7 +7,7 @@
       .attr('height', height);
 
   var buildings = svg.selectAll('g');
-  var lines   = svg.selectAll('line');
+  var lines     = svg.selectAll('line');
 
   var linePreview = svg
      .append('line');
@@ -61,6 +61,7 @@ function update() {
   buildings = buildings.data(vertices, function(d) {return d.id});
   buildings.exit().remove();
   var enter = buildings.enter().append('g')
+      .on('click', editLabel)
       .on('mouseover', bldgHover)
       .on('mouseout', bldgUnHover)
       .call(d3.drag()
@@ -71,9 +72,9 @@ function update() {
   enter.append('text')
       .text(function(d) {return d.id;})
       .attr('transform', function() {
-       var b = this.getBBox();
-       return 'translate(-'+ b.width/2 +','+ b.height/2 +')';
-      });
+         var b = this.getBBox();
+         return 'translate(-'+ b.width/2 +','+ b.height/2 +')';
+        });
   enter.append('rect')
       .attr('width', function(d) {
         return this.previousElementSibling.getBBox().width + 5;
@@ -86,8 +87,9 @@ function update() {
        return 'translate(-'+ b.width/2 +',-'+ b.height/2 +')';
       });
 
-  buildings = buildings.merge(enter)
-      .raise();
+  buildings = buildings.merge(enter);
+
+  d3.selectAll('line').lower();
   d3.selectAll('text').raise();
 
   simulation.nodes(vertices);
@@ -211,6 +213,15 @@ function edgeExists(source, target) {
         (source === edges[i].target && target === edges[i].source)) {
       return true;
     }
+  }
+}
+
+function editLabel(d) {
+  // prevent svg from firing
+  var label = prompt('Building type:')
+  if (label) {
+    d.id = label;
+    d3.select(this).select('text').text(d.id);
   }
 }
 
