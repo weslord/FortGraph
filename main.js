@@ -50,6 +50,7 @@
   var ctrlPressed = false;
 
   svg.on('dblclick', newVertexAtMouse);
+  svg.on('click', selectObj);
 
   d3.select(window)
     .on('keydown', windowKeydown)
@@ -233,6 +234,10 @@ function lineUnHover(d) {
 
 function selectObj(subject) {
     d3.event.stopPropagation();
+    if (subject === selected) {
+      subject = null;
+    }
+
     selected = subject;
 
     edges.forEach(function(edge) {
@@ -248,6 +253,9 @@ function selectObj(subject) {
 
     titleInput.value = subject.id;
     typeInput.value = subject.type;
+  } else {
+    titleInput.value = '';
+    typeInput.value = '';
   }
 
   update();

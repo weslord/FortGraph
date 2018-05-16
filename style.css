@@ -21,7 +21,12 @@ rect {
   fill: #fff;
 }
 
-.hover rect, .selected, .selected rect {
+.hover rect {
+  stroke-width: 3;
+}
+
+line.selected, .selected rect {
+  fill: #eee;
   stroke-width: 3;
 }
 
