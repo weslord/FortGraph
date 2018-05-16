@@ -30,6 +30,7 @@
       .node();
 
   var lastVertexId = 2;
+  // is it possible to enforce uniqueness (eg numerical id) without sacrificing useablity (eg clear source-target relationships)
   var vertices = [
     {id: 'Stone', type: 'stockpile'},
     {id: 'Mason', type: 'workshop'},
@@ -200,7 +201,7 @@ function bldgDragEnd(d) {
     source.fy = null;
   } else {
     if (target) {
-      if (!edgeExists(source, target)) {
+      if (source !== target && !edgeExists(source, target)) {
         edges.push({source: source, target: target});
       }
     }
@@ -211,10 +212,12 @@ function bldgDragEnd(d) {
 
 function bldgHover(d) {
   target = d;
+  d3.select(this).classed('hover', true);
 }
 
 function bldgUnHover(d) {
   target = null;
+  d3.select(this).classed('hover', false);
 }
 
 function lineHover(d) {
