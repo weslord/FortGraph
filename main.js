@@ -28,6 +28,8 @@
         update();
       })
       .node();
+  var connections = inspector.append('div')
+      .node();
 
   var lastVertexId = 2;
   var vertices = [
@@ -258,9 +260,19 @@ function selectObj(subject) {
 
     titleInput.value = subject.title;
     typeInput.value = subject.type;
+
+    var conString = '';
+    edges.forEach(function(edge) {
+      if (edge.source === subject || edge.target === subject) {
+        conString += ''+ edge.source.title +' - '+ edge.target.title +'<br>';
+      }
+    });
+
+    connections.innerHTML = conString;
   } else {
     titleInput.value = '';
     typeInput.value = '';
+    connections.innerText = '';
   }
 
   update();
