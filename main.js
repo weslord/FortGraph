@@ -19,6 +19,7 @@
   var titleInput = inspector.append('input')
       .on('change', function () {
         selected ? selected.title = this.value : null;
+        updateInspector(selected);
         update();
       })
       .node();
@@ -213,7 +214,9 @@ function bldgDragEnd(d) {
   } else {
     if (target) {
       if (source !== target && !edgeExists(source, target)) {
+        // change this, allow connections in either direction
         edges.push({source: source, target: target});
+        updateInspector(selected);
       }
     }
   }
@@ -255,6 +258,13 @@ function selectObj(subject) {
       vertex.selected = false;
     });
 
+  updateInspector(selected);
+
+  update();
+}
+
+function updateInspector(subject) {
+  // change format to From: obj obj obj To: obj obj
   if (subject) {
     subject.selected = true;
 
@@ -264,7 +274,7 @@ function selectObj(subject) {
     var conString = '';
     edges.forEach(function(edge) {
       if (edge.source === subject || edge.target === subject) {
-        conString += ''+ edge.source.title +' - '+ edge.target.title +'<br>';
+        conString += ''+ edge.source.title +' -> '+ edge.target.title +'<br>';
       }
     });
 
@@ -274,8 +284,6 @@ function selectObj(subject) {
     typeInput.value = '';
     connections.innerText = '';
   }
-
-  update();
 }
 
 function fixBldg(subject) {
