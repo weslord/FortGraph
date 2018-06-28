@@ -29,7 +29,9 @@
         update();
       })
       .node();
-  var connections = inspector.append('div')
+  var conTo = inspector.append('div')
+      .node();
+  var conFrom = inspector.append('div')
       .node();
 
   var lastVertexId = 2;
@@ -271,18 +273,29 @@ function updateInspector(subject) {
     titleInput.value = subject.title;
     typeInput.value = subject.type;
 
-    var conString = '';
+    var conString = 'From:<ul>';
     edges.forEach(function(edge) {
-      if (edge.source === subject || edge.target === subject) {
-        conString += ''+ edge.source.title +' -> '+ edge.target.title +'<br>';
+      if (edge.target === subject) {
+        conString += '<li>'+ edge.source.title +'</li>';
       }
     });
+    conString += '<li>+</li></ul>';
+    conTo.innerHTML = conString;
 
-    connections.innerHTML = conString;
+    conString = 'To:<ul>';
+    edges.forEach(function(edge) {
+      if (edge.source === subject) {
+        conString += '<li>'+ edge.target.title +'</li>';
+      }
+    });
+    conString += '<li>+</li></ul>';
+    conFrom.innerHTML = conString;
+
   } else {
     titleInput.value = '';
     typeInput.value = '';
-    connections.innerText = '';
+    conTo.innerText = '';
+    conFrom.innerText = '';
   }
 }
 
