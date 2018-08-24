@@ -16,8 +16,16 @@ body {
   border: 2px solid black;
   width: 250px;
   height: 500px;
-  float: right;
+  position: absolute;
+  top: 8px;
+  left: 806px;
   overflow: scroll;
+  background: rgba(255,255,255,0.8);
+  padding: 1em;
+}
+
+#inspector input {
+  margin-bottom: 1em;
 }
 
 svg {
