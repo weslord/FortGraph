@@ -1,6 +1,9 @@
 { // INIT
-  var width  = 800,
-      height = 500;
+  var windowWidth = window.innerWidth,
+      windowHeight = window.innerHeight;
+  
+  var width  = windowWidth - 258,
+      height = windowHeight - 10;
 
   var color = d3.scaleOrdinal(d3.schemeCategory10);
 
