@@ -55,6 +55,8 @@
 
   var dragging = true;
   var ctrlPressed = false;
+  
+  window.addEventListener("resize", resize);
 
   svg.on('dblclick', newVertexAtMouse);
   svg.on('click', selectObj);
@@ -386,4 +388,16 @@ function windowKeyup() {
     default:
       break;
   }
+}
+
+function resize() {
+  var windowWidth = window.innerWidth,
+      windowHeight = window.innerHeight;
+  
+  width  = windowWidth - 258,
+  height = windowHeight - 10;
+  
+  svg
+    .attr('width', width)
+    .attr('height', height);
 }
