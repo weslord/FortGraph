@@ -1,5 +1,5 @@
 { // INIT
-  var windowWidth = window.innerWidth,
+  var windowWidth  = window.innerWidth,
       windowHeight = window.innerHeight;
   
   var width  = windowWidth - 258,
@@ -10,12 +10,18 @@
   var svg = d3.select('body').append('svg')
       .attr('width', width)
       .attr('height', height);
+  
+  svg
+    .call(d3.zoom().on('zoom', zoomed))
+    .on('dblclick.zoom', null);
 
-  var buildings = svg.selectAll('g');
-  var lines     = svg.selectAll('line');
+  var world     = svg.append('g')
+      .attr('id', 'world');
+  var buildings = world.selectAll('g');
+  var lines     = world.selectAll('line');
 
-  var linePreview = svg
-     .append('line');
+  var linePreview = world
+      .append('line');
 
   var inspector = d3.select('body').append('div')
       .attr('id', 'inspector');
@@ -149,8 +155,8 @@ function tick() {
 }
 
 function newVertexAtMouse() {
-  var x = d3.mouse(this)[0];
-  var y = d3.mouse(this)[1];
+  var x = d3.mouse(world.node())[0];
+  var y = d3.mouse(world.node())[1];
 
   var newVertex = {id: ++lastVertexId, title: 'New', type: '', x: x, y: y};
 
@@ -195,8 +201,8 @@ function bldgDragProgress(d) {
       tx = target.x;
       ty = target.y;
     } else {
-      tx = d3.mouse(svg.node())[0];
-      ty = d3.mouse(svg.node())[1];
+      tx = d3.mouse(world.node())[0];
+      ty = d3.mouse(world.node())[1];
     }
     linePreview
         .style('display', 'inline')
@@ -364,7 +370,7 @@ function windowKeydown(d) {
       case 8:  // backspace
       case 46: // delete
       case 68: // d
-        svg.selectAll('.selected').each(deleteObj);
+        world.selectAll('.selected').each(deleteObj);
         target = null;
         break;
       case 27: // esc
@@ -405,4 +411,8 @@ function resize() {
       .force('x', d3.forceX(width/2))
       .force('y', d3.forceY(height/2))
       .alpha(0.3).restart();
+}
+
+function zoomed() {
+  world.attr('transform', d3.event.transform);
 }
