@@ -400,4 +400,9 @@ function resize() {
   svg
     .attr('width', width)
     .attr('height', height);
+  
+  simulation
+      .force('x', d3.forceX(width/2))
+      .force('y', d3.forceY(height/2))
+      .alpha(0.3).restart();
 }
