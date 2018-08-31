@@ -138,8 +138,6 @@ function update() {
 
   simulation.nodes(vertices);
   simulation.force('link').links(edges).distance(100).strength(0.2)
-  simulation.alpha(0.3).restart();
-
 }
 
 function tick() {
@@ -164,6 +162,7 @@ function newVertexAtMouse() {
   selectObj(newVertex);
 
   update();
+  simulation.alpha(0.3).restart();
 }
 
 function deleteObj(obj) {
