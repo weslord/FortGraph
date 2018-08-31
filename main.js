@@ -43,7 +43,6 @@
   var conFrom = inspector.append('div')
       .node();
 
-  var lastVertexId = 2;
   var vertices = [
     {id: 0, title: 'Stone', type: 'stockpile'},
     {id: 1, title: 'Mason', type: 'workshop'},
@@ -156,6 +155,14 @@ function newVertexAtMouse() {
   var x = d3.mouse(world.node())[0];
   var y = d3.mouse(world.node())[1];
 
+  var lastVertexId = 0;
+
+  vertices.forEach(function(vertex){
+    if (vertex.id > lastVertexId) {
+      lastVertexId = vertex.id;
+    }
+  })
+  
   var newVertex = {id: ++lastVertexId, title: 'New', type: '', x: x, y: y};
 
   vertices.push(newVertex);
@@ -349,11 +356,11 @@ function importGraph(dirtyGraph) {
 
   vertices = [];
   edges = [];
-  update();
 
   vertices = graph.vertices;
   edges = graph.edges;
   update();
+  simulation.alpha(0.3).restart();
 }
 
 function windowKeydown(d) {
