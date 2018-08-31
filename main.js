@@ -43,15 +43,12 @@
   var conFrom = inspector.append('div')
       .node();
 
-  var vertices = [
-    {id: 0, title: 'Stone', type: 'stockpile'},
-    {id: 1, title: 'Mason', type: 'workshop'},
-    {id: 2, title: 'Crafts', type: 'workshop'}
-  ];
-  var edges = [
-    {source: '0', target: '1'},
-    {source: '0', target: '2'}
-  ];
+  var vertices = [];
+  var edges = [];
+  
+  d3.text('industries.json').then(function(g){
+    importGraph(g);
+  });
 
   var source = null,
       target = null,
