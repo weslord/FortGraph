@@ -3,357 +3,179 @@
     {
       "id":0,
       "title":"Stone",
-      "type":"stockpile",
-      "index":0,
-      "x":479.1893674420798,
-      "y":593.5711318204885,
-      "vy":-0.00033319419980120405,
-      "vx":-0.004532289945656852,
-      "selected":false,
-      "fx":null,
-      "fy":null
+      "type":"stockpile"
     },
     {
       "id":1,
       "title":"Mason",
-      "type":"workshop",
-      "index":1,
-      "x":379.2330999021724,
-      "y":607.7402746524508,
-      "vy":-0.000039633414390884154,
-      "vx":-0.00414311301112996,
-      "selected":false,
-      "fx":null,
-      "fy":null
+      "type":"workshop"
     },
     {
       "id":2,
       "title":"Craftsdwarf",
-      "type":"workshop",
-      "index":2,
-      "x":425.2430222566229,
-      "y":516.1922779639366,
-      "vy":-0.000648808535319994,
-      "vx":-0.004286518609740784,
-      "selected":false,
-      "fx":null,
-      "fy":null
+      "type":"workshop"
     },
     {
       "id":3,
       "title":"Carpenter",
-      "type":"workshop",
-      "x":375.3603457306537,
-      "y":547.2772276099147,
-      "selected":false,
-      "index":3,
-      "vy":-0.00048191595643692865,
-      "vx":-0.003808128301964259,
-      "fx":null,
-      "fy":null
+      "type":"workshop"
     },
     {
       "id":4,
       "title":"Wood",
-      "type":"stockpile",
-      "x":349.58216244388024,
-      "y":453.9144882807973,
-      "selected":false,
-      "index":4,
-      "vy":-0.0001487287808289518,
-      "vx":-0.00475529978575942,
-      "fx":null,
-      "fy":null
+      "type":"stockpile"
     },
     {
       "id":5,
       "title":"Wood Furnace",
-      "type":"workshop",
-      "x":306.80250687218916,
-      "y":359.74421210338164,
-      "selected":false,
-      "index":5,
-      "vy":-0.00031930142687714477,
-      "vx":-0.004436244882969425,
-      "fx":null,
-      "fy":null
+      "type":"workshop"
     },
     {
       "id":6,
       "title":"Charcoal",
-      "type":"stockpile",
-      "x":241.61609815232455,
-      "y":416.65156466037416,
-      "selected":false,
-      "index":6,
-      "vy":0.0005418667982434956,
-      "vx":-0.003571689479199882,
-      "fx":null,
-      "fy":null
+      "type":"stockpile"
     },
     {
       "id":7,
       "title":"Ash",
-      "type":"stockpile",
-      "x":362.1041264910772,
-      "y":281.8830430912645,
-      "selected":false,
-      "index":7,
-      "vy":0.0001360582835351903,
-      "vx":-0.003805624990201704,
-      "fx":null,
-      "fy":null
+      "type":"stockpile"
     },
     {
       "id":8,
       "title":"Trees",
-      "type":"resource",
-      "x":371.7802573616704,
-      "y":355.35050350102574,
-      "selected":false,
-      "index":8,
-      "vy":0.00012559165022864568,
-      "vx":-0.004508455678243672
+      "type":"resource"
     },
     {
       "id":9,
       "title":"Mining",
-      "type":"resource",
-      "x":554.559416436087,
-      "y":537.6639392760404,
-      "selected":false,
-      "index":9,
-      "vy":0.0003211210889494443,
-      "vx":-0.0043454480526029056
+      "type":"resource"
     },
     {
       "id":10,
       "title":"Furniture",
-      "type":"stockpile",
-      "x":289.1457227518613,
-      "y":549.1775744600425,
-      "selected":false,
-      "index":10,
-      "vy":0.00046717269779181366,
-      "vx":-0.0037789634831469545
+      "type":"stockpile"
     },
     {
       "id":11,
       "title":"Bowyer",
-      "type":"workshop",
-      "x":263.4299379592483,
-      "y":479.11641913106973,
-      "selected":false,
-      "index":11,
-      "vy":0.0009608169733956081,
-      "vx":-0.004361910836586853,
-      "fx":null,
-      "fy":null
+      "type":"workshop"
     },
     {
       "id":12,
       "title":"Farm Plot",
-      "type":"workshop",
-      "x":464.3331886067309,
-      "y":476.69499990447525,
-      "selected":false,
-      "index":12,
-      "vy":-0.00011098205953739897,
-      "vx":-0.003861737681822606,
-      "fx":null,
-      "fy":null
+      "type":"workshop"
     },
     {
       "id":13,
       "title":"Brewery",
-      "type":"workshop",
-      "x":450.0200489769539,
-      "y":292.7829596388411,
-      "selected":false,
-      "index":13,
-      "vy":0.0002896924762325434,
-      "vx":-0.003997172510476117
+      "type":"workshop"
     },
     {
       "id":14,
       "title":"Farmer's Workshop",
-      "type":"workshop",
-      "x":535.8257902413402,
-      "y":471.262343776196,
-      "selected":false,
-      "index":14,
-      "vy":-0.000013057802090569743,
-      "vx":-0.003938444368880621,
-      "fx":null,
-      "fy":null
+      "type":"workshop"
     },
     {
       "id":15,
       "title":"Kitchen",
-      "type":"workshop",
-      "x":578.8386191870513,
-      "y":419.54697022768914,
-      "selected":false,
-      "index":15,
-      "vy":-0.00007361981639661068,
-      "vx":-0.00427545762187864,
-      "fx":null,
-      "fy":null
+      "type":"workshop"
     },
     {
       "id":16,
       "title":"Plants",
-      "type":"stockpile",
-      "x":488.45131199584984,
-      "y":384.4092614708958,
-      "selected":false,
-      "index":16,
-      "vy":0.00012614228723078734,
-      "vx":-0.004229667886677672
+      "type":"stockpile"
     },
     {
       "id":17,
       "title":"Seeds",
-      "type":"stockpile",
-      "x":419.857090313516,
-      "y":393.7953328750097,
-      "selected":false,
-      "index":17,
-      "vy":0.00017480160915569638,
-      "vx":-0.004444761994181444,
-      "fx":null,
-      "fy":null
+      "type":"stockpile"
     },
     {
       "id":18,
       "title":"Alcohol",
-      "type":"stockpile",
-      "x":537.9315340537033,
-      "y":331.7855981145695,
-      "selected":false,
-      "index":18,
-      "vy":0.000049726779158421984,
-      "vx":-0.00433317026073992
+      "type":"stockpile"
     }
   ],
   "edges":[
     {
       "source":0,
-      "target":1,
-      "index":0,
-      "selected":false
+      "target":1
     },
     {
       "source":0,
-      "target":2,
-      "index":1,
-      "selected":false
+      "target":2
     },
     {
       "source":8,
-      "target":4,
-      "index":2,
-      "selected":false
+      "target":4
     },
     {
       "source":9,
-      "target":0,
-      "index":3,
-      "selected":false
+      "target":0
     },
     {
       "source":4,
-      "target":5,
-      "index":4,
-      "selected":false
+      "target":5
     },
     {
       "source":4,
-      "target":3,
-      "index":5,
-      "selected":false
+      "target":3
     },
     {
       "source":5,
-      "target":7,
-      "index":6,
-      "selected":false
+      "target":7
     },
     {
       "source":5,
-      "target":6,
-      "index":7,
-      "selected":false
+      "target":6
     },
     {
       "source":4,
-      "target":2,
-      "index":8,
-      "selected":false
+      "target":2
     },
     {
       "source":3,
-      "target":10,
-      "index":9,
-      "selected":false
+      "target":10
     },
     {
       "source":1,
-      "target":10,
-      "index":10,
-      "selected":false
+      "target":10
     },
     {
       "source":4,
-      "target":11,
-      "index":11,
-      "selected":false
+      "target":11
     },
     {
       "source":12,
-      "target":16,
-      "index":12,
-      "selected":false
+      "target":16
     },
     {
       "source":13,
-      "target":17,
-      "index":13,
-      "selected":false
+      "target":17
     },
     {
       "source":17,
-      "target":12,
-      "index":14,
-      "selected":false
+      "target":12
     },
     {
       "source":16,
-      "target":13,
-      "index":15,
-      "selected":false
+      "target":13
     },
     {
       "source":16,
-      "target":14,
-      "index":16,
-      "selected":false
+      "target":14
     },
     {
       "source":16,
-      "target":15,
-      "index":17,
-      "selected":false
+      "target":15
     },
     {
       "source":13,
-      "target":18,
-      "index":18
+      "target":18
     },
     {
       "source":18,
-      "target":15,
-      "index":19
+      "target":15
     }
   ]
 }

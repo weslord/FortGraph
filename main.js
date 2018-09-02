@@ -11,12 +11,17 @@
       .attr('width', width)
       .attr('height', height);
   
+  var world = svg.append('g')
+      .attr('id', 'world')
+      .attr('transform', 'translate('+width/2+','+height/2+')');
+  
   svg
-    .call(d3.zoom().on('zoom', zoomed))
+    .call(d3.zoom()
+        .scaleExtent([1/8, 2])
+        .on('zoom', zoomed))
+    .call(d3.zoom().transform, d3.zoomIdentity.translate(width/2, height/2))
     .on('dblclick.zoom', null);
 
-  var world     = svg.append('g')
-      .attr('id', 'world');
   var buildings = world.selectAll('g');
   var lines     = world.selectAll('line');
 
@@ -68,14 +73,14 @@
     .on('keyup', windowKeyup);
 
   var simulation = d3.forceSimulation()
-      .force('x', d3.forceX(width/2))
-      .force('y', d3.forceY(height/2))
+      .force('x', d3.forceX(0))
+      .force('y', d3.forceY(0))
       .force('link', d3.forceLink().id(function(d) {return d.id;}))
       .force('charge', d3.forceManyBody().strength(-200))
       .on('tick', tick);
 
-  simulation.force('x').strength(0.04);
-  simulation.force('y').strength(0.08);
+  simulation.force('x').strength(0.02);
+  simulation.force('y').strength(0.03);
 
   update();
 }
@@ -183,6 +188,7 @@ function deleteObj(obj) {
   }
 
   update();
+  simulation.alpha(0.3).restart();
 }
 
 function bldgDragStart(d) {
@@ -357,7 +363,7 @@ function importGraph(dirtyGraph) {
   vertices = graph.vertices;
   edges = graph.edges;
   update();
-  simulation.alpha(0.3).restart();
+  simulation.alpha(1).restart();
 }
 
 function windowKeydown(d) {
@@ -411,8 +417,6 @@ function resize() {
     .attr('height', height);
   
   simulation
-      .force('x', d3.forceX(width/2))
-      .force('y', d3.forceY(height/2))
       .alpha(0.3).restart();
 }
 
