@@ -33,9 +33,13 @@
       .attr('id', 'inspector');
   var titleInput = inspector.append('input')
       .on('change', function () {
-        selected ? selected.title = this.value : null;
-        updateInspector(selected);
-        update();
+        if (this.value == '') {
+          this.value = selected.title;
+        } else {
+          selected ? selected.title = this.value : null;
+          updateInspector(selected);
+          update();
+        }
       })
       .node();
   var typeInput = inspector.append('input')
@@ -101,7 +105,7 @@ function update() {
   buildings.exit().remove();
   enter = buildings.enter().append('g')
       .on('click', selectObj)
-      .on('dblclick', fixBldg)
+      .on('dblclick', focusInput)
       .on('mouseover', bldgHover)
       .on('mouseout', bldgUnHover)
       .call(d3.drag()
@@ -179,6 +183,7 @@ function newVertexAtMouse() {
 
   vertices.push(newVertex);
   selectObj(newVertex);
+  focusInput();
 
   update();
   simulation.alpha(0.3).restart();
@@ -278,7 +283,9 @@ function lineUnHover(d) {
 function selectObj(subject) {
   d3.event.stopPropagation();
   if (subject === selected) {
-    subject = null;
+    // TODO: re-implement for multi-select
+    //       do not interfere with dblclick
+//    subject = null;
   }
 
   selected = subject;
@@ -298,7 +305,7 @@ function selectObj(subject) {
 
 function updateInspector(subject) {
   // change format to From: obj obj obj To: obj obj
-  if (subject) {
+  if (subject && subject.title !== '') {
     subject.selected = true;
 
     titleInput.value = subject.title;
@@ -323,6 +330,10 @@ function updateInspector(subject) {
     conFrom.innerHTML = conString;
 
   } else {
+    if (subject && subject.title === '') {
+      console.log(subject);
+      deleteObj(subject);
+    }
     titleInput.value = '';
     typeInput.value = '';
     conTo.innerText = '';
@@ -330,8 +341,12 @@ function updateInspector(subject) {
   }
 }
 
-function fixBldg(subject) {
+function focusInput() {
   d3.event.stopPropagation();
+  titleInput.select();
+}
+
+function fixBldg(subject) {
   if (subject && subject.fixed) {
     d3.select(this).classed('fixed', false);
     subject.fixed = false;
@@ -395,6 +410,9 @@ function windowKeydown(d) {
       case 68: // d
         world.selectAll('.selected').each(deleteObj);
         target = null;
+        break;
+       case 80: // p
+        world.selectAll('.selected').each(fixBldg);
         break;
       case 27: // esc
         selectObj(null);

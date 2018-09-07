@@ -4,14 +4,14 @@ A [D3](https://d3js.org)-based Force Directed Graph for planning and optimizing 
 
 ## Usage
 
-- Click to select nodes or connections
-- Esc to deselect
-- Edit the properties of selected object in the inspector on the right
-- D or delete key to delete selected object
 - Drag nodes to re-arrange them
-- Double click a node to 'pin' it in place
+- Click to select nodes or connections
+- Edit the properties of selected nodes in the inspector on the right
 - Double click empty space to add new nodes
 - Ctrl- or alt-click and drag to create connections between nodes
+- **P** to 'pin' selected node in place
+- **D** or delete key to delete selected object
+- **Esc** to deselect
 
 ## Additional Notes
 
