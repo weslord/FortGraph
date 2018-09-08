@@ -38,11 +38,14 @@ rect {
 }
 
 .hover rect {
-  stroke-width: 3;
+  stroke-width: 3.5;
+}
+
+.fixed rect {
+  fill: #eee;
 }
 
 line.selected, .selected rect {
-  fill: #eee;
   stroke-width: 3;
 }
 

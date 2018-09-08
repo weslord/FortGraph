@@ -322,10 +322,13 @@ function updateInspector(subject) {
 function fixBldg(subject) {
   d3.event.stopPropagation();
   if (subject && subject.fixed) {
+    d3.select(this).classed('fixed', false);
     subject.fixed = false;
     subject.fx = null;
     subject.fy = null;
+    simulation.alpha(0.3).restart();
   } else if (subject) {
+    d3.select(this).classed('fixed', true);
     subject.fixed = true;
     subject.fx = subject.x;
     subject.fy = subject.y;
