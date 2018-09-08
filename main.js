@@ -212,6 +212,7 @@ function bldgDragStart(d) {
 }
 
 function bldgDragProgress(d) {
+  var tx, ty;
   if (dragging) {
     source.fx = d3.event.x;
     source.fy = d3.event.y;
