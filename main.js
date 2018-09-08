@@ -1,3 +1,4 @@
+'use strict';
 { // INIT
   var windowWidth  = window.innerWidth,
       windowHeight = window.innerHeight;
@@ -39,7 +40,7 @@
       .node();
   var typeInput = inspector.append('input')
       .on('change', function () {
-        selected ? selected.type = this.value : null
+        selected ? selected.type = this.value : null;
         update();
       })
       .node();
@@ -94,9 +95,11 @@ function update() {
   lines.exit().remove();
   lines = lines.merge(enter);
 
-  buildings = buildings.data(vertices, function(d) {return d.id});
+  buildings = buildings.data(vertices, function(d) {
+    return d.id;
+  });
   buildings.exit().remove();
-  var enter = buildings.enter().append('g')
+  enter = buildings.enter().append('g')
       .on('click', selectObj)
       .on('dblclick', fixBldg)
       .on('mouseover', bldgHover)
@@ -111,8 +114,12 @@ function update() {
 
   buildings = buildings.merge(enter);
 
-  buildings.classed('selected', function (d) {return d.selected});
-  lines.classed('selected', function (d) {return d.selected});
+  buildings.classed('selected', function (d) {
+    return d.selected;
+  });
+  lines.classed('selected', function (d) {
+    return d.selected;
+  });
 
   buildings.selectAll('text')
       .text(function(d) {return d.title;})
@@ -138,15 +145,18 @@ function update() {
   d3.selectAll('text').raise();
 
   simulation.nodes(vertices);
-  simulation.force('link').links(edges).distance(100).strength(0.2)
+  simulation.force('link')
+    .links(edges)
+    .distance(100)
+    .strength(0.2);
 }
 
 function tick() {
   lines
-      .attr('x1', function(d) {return d.source.x})
-      .attr('y1', function(d) {return d.source.y})
-      .attr('x2', function(d) {return d.target.x})
-      .attr('y2', function(d) {return d.target.y});
+      .attr('x1', function(d) {return d.source.x;})
+      .attr('y1', function(d) {return d.source.y;})
+      .attr('x2', function(d) {return d.target.x;})
+      .attr('y2', function(d) {return d.target.y;});
 
   buildings.attr('transform', function(d) {
     return 'translate(' + d.x + ',' + d.y + ')';
@@ -163,7 +173,7 @@ function newVertexAtMouse() {
     if (vertex.id > lastVertexId) {
       lastVertexId = vertex.id;
     }
-  })
+  });
   
   var newVertex = {id: ++lastVertexId, title: 'New', type: '', x: x, y: y};
 
@@ -350,7 +360,7 @@ function exportGraph() {
     cleanEdge.source = cleanEdge.source.id;
     cleanEdge.target = cleanEdge.target.id;
     return cleanEdge;
-  })
+  });
 
   var cleanGraph = {vertices: vertices, edges: cleanEdges};
   return JSON.stringify(cleanGraph);
