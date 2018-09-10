@@ -408,6 +408,7 @@ function windowKeydown(d) {
       case 8:  // backspace
       case 46: // delete
       case 68: // d
+        d3.event.preventDefault();
         world.selectAll('.selected').each(deleteObj);
         target = null;
         break;
