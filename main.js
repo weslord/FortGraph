@@ -276,20 +276,20 @@ function lineUnHover(d) {
 }
 
 function selectObj(subject) {
-    d3.event.stopPropagation();
-    if (subject === selected) {
-      subject = null;
-    }
+  d3.event.stopPropagation();
+  if (subject === selected) {
+    subject = null;
+  }
 
-    selected = subject;
+  selected = subject;
 
-    edges.forEach(function(edge) {
-      edge.selected = false;
-    });
+  edges.forEach(function(edge) {
+    edge.selected = false;
+  });
 
-    vertices.forEach(function(vertex) {
-      vertex.selected = false;
-    });
+  vertices.forEach(function(vertex) {
+    vertex.selected = false;
+  });
 
   updateInspector(selected);
 
