@@ -29,9 +29,10 @@
   var linePreview = world
       .append('line');
 
-  var inspector = d3.select('body').append('div')
+  var inspector = {};
+  inspector.body = d3.select('body').append('div')
       .attr('id', 'inspector');
-  var titleInput = inspector.append('input')
+  inspector.title = inspector.body.append('input')
       .on('change', function () {
         if (this.value == '') {
           this.value = selected.title;
@@ -40,18 +41,18 @@
           updateInspector(selected);
           update();
         }
-      })
-      .node();
-  var typeInput = inspector.append('input')
+      });
+  inspector.type = inspector.body.append('input')
       .on('change', function () {
         selected ? selected.type = this.value : null;
         update();
-      })
-      .node();
-  var conTo = inspector.append('div')
-      .node();
-  var conFrom = inspector.append('div')
-      .node();
+      });
+  inspector.from = inspector.body.append('div');
+  inspector.to = inspector.body.append('div');
+  inspector.focus = function () {
+    d3.event.stopPropagation();
+    inspector.title.node().select();
+  }
 
   var vertices = [];
   var edges = [];
@@ -105,7 +106,7 @@ function update() {
   buildings.exit().remove();
   enter = buildings.enter().append('g')
       .on('click', selectObj)
-      .on('dblclick', focusInput)
+      .on('dblclick', inspector.focus)
       .on('mouseover', bldgHover)
       .on('mouseout', bldgUnHover)
       .call(d3.drag()
@@ -183,7 +184,7 @@ function newVertexAtMouse() {
 
   vertices.push(newVertex);
   selectObj(newVertex);
-  focusInput();
+  inspector.focus();
 
   update();
   simulation.alpha(0.3).restart();
@@ -308,8 +309,8 @@ function updateInspector(subject) {
   if (subject && subject.title !== '') {
     subject.selected = true;
 
-    titleInput.value = subject.title;
-    typeInput.value = subject.type;
+    inspector.title.node().value = subject.title;
+    inspector.type.node().value = subject.type;
 
     var conString = 'From:<ul>';
     edges.forEach(function(edge) {
@@ -318,7 +319,7 @@ function updateInspector(subject) {
       }
     });
     conString += '<li>+</li></ul>';
-    conTo.innerHTML = conString;
+    inspector.from.node().innerHTML = conString;
 
     conString = 'To:<ul>';
     edges.forEach(function(edge) {
@@ -327,23 +328,18 @@ function updateInspector(subject) {
       }
     });
     conString += '<li>+</li></ul>';
-    conFrom.innerHTML = conString;
+    inspector.to.node().innerHTML = conString;
 
   } else {
     if (subject && subject.title === '') {
       console.log(subject);
       deleteObj(subject);
     }
-    titleInput.value = '';
-    typeInput.value = '';
-    conTo.innerText = '';
-    conFrom.innerText = '';
+    inspector.title.node().value = '';
+    inspector.type.node().value = '';
+    inspector.to.node().innerText = '';
+    inspector.from.node().innerText = '';
   }
-}
-
-function focusInput() {
-  d3.event.stopPropagation();
-  titleInput.select();
 }
 
 function fixBldg(subject) {
