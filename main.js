@@ -2,7 +2,7 @@
 { // INIT
   var windowWidth  = window.innerWidth,
       windowHeight = window.innerHeight;
-  
+
   var width  = windowWidth - 258,
       height = windowHeight - 10;
 
@@ -11,11 +11,11 @@
   var svg = d3.select('body').append('svg')
       .attr('width', width)
       .attr('height', height);
-  
+
   var world = svg.append('g')
       .attr('id', 'world')
       .attr('transform', 'translate('+width/2+','+height/2+')');
-  
+
   svg
     .call(d3.zoom()
         .scaleExtent([1/8, 2])
@@ -56,7 +56,7 @@
 
   var vertices = [];
   var edges = [];
-  
+
   d3.text('industries.json').then(function(g){
     importGraph(g);
   });
@@ -466,14 +466,14 @@ function windowKeyup() {
 function resize() {
   var windowWidth = window.innerWidth,
       windowHeight = window.innerHeight;
-  
+
   width  = windowWidth - 258,
   height = windowHeight - 10;
-  
+
   svg
     .attr('width', width)
     .attr('height', height);
-  
+
   simulation
       .alpha(0.3).restart();
 }
