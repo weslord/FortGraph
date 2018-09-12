@@ -171,7 +171,10 @@ function tick() {
 function newVertexAtMouse() {
   var x = d3.mouse(world.node())[0];
   var y = d3.mouse(world.node())[1];
+  newVertex(x, y);
+}
 
+function newVertex(x = 0, y = 0) {
   var lastVertexId = 0;
 
   vertices.forEach(function(vertex){
@@ -180,14 +183,15 @@ function newVertexAtMouse() {
     }
   });
   
-  var newVertex = {id: ++lastVertexId, title: 'New', type: '', x: x, y: y};
+  var vertex = {id: ++lastVertexId, title: 'New', type: '', x: x, y: y};
 
-  vertices.push(newVertex);
-  selectObj(newVertex);
+  vertices.push(vertex);
+  selectObj(vertex);
   inspector.focus();
 
   update();
   simulation.alpha(0.3).restart();
+  return vertex;
 }
 
 function deleteObj(obj) {
@@ -305,33 +309,55 @@ function selectObj(subject) {
 }
 
 function updateInspector(subject) {
-  // change format to From: obj obj obj To: obj obj
   if (subject && subject.title !== '') {
     subject.selected = true;
 
     inspector.title.node().value = subject.title;
     inspector.type.node().value = subject.type;
 
-    // i.f.text() has the side effect of wiping out previously appended froms
-    // again, switching to data join probably better
-    inspector.from.text('From:');
-    var from = inspector.from.append('ul');
+    var from = inspector.from.text('From:')
+        .append('ul');
+
     edges.forEach(function(edge) {
       if (edge.target === subject) {
-        // use d3 style data bind, obviously
-        from.append('li').text(edge.source.title);
+        from.append('li')
+            .text(edge.source.title)
+            .on('click', function() {
+              selectObj(edge.source);
+            });
       }
     });
-    var addFrom = from.append('li').text('+');
 
-    inspector.to.text('To:');
-    var to = inspector.to.append('ul');
+    from.append('li')
+        .text('+')
+        .on('click', function() {
+          var vertex = newVertex();
+          edges.push({source: vertex, target: subject});
+          updateInspector(vertex);
+          update();
+        }); 
+
+    var to = inspector.to.text('To:')
+        .append('ul');
+
     edges.forEach(function(edge) {
       if (edge.source === subject) {
-        to.append('li').text(edge.target.title);
+        to.append('li')
+            .text(edge.target.title)
+            .on('click', function() {
+              selectObj(edge.target);
+            });
       }
     });
-    var addTo = to.append('li').text('+');
+
+    to.append('li')
+        .text('+')
+        .on('click', function() {
+          var vertex = newVertex();
+          edges.push({source: subject, target: vertex});
+          updateInspector(vertex);
+          update();
+        }); 
 
   } else {
     if (subject && subject.title === '') {
