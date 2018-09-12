@@ -312,23 +312,26 @@ function updateInspector(subject) {
     inspector.title.node().value = subject.title;
     inspector.type.node().value = subject.type;
 
-    var conString = 'From:<ul>';
+    // i.f.text() has the side effect of wiping out previously appended froms
+    // again, switching to data join probably better
+    inspector.from.text('From:');
+    var from = inspector.from.append('ul');
     edges.forEach(function(edge) {
       if (edge.target === subject) {
-        conString += '<li>'+ edge.source.title +'</li>';
+        // use d3 style data bind, obviously
+        from.append('li').text(edge.source.title);
       }
     });
-    conString += '<li>+</li></ul>';
-    inspector.from.node().innerHTML = conString;
+    var addFrom = from.append('li').text('+');
 
-    conString = 'To:<ul>';
+    inspector.to.text('To:');
+    var to = inspector.to.append('ul');
     edges.forEach(function(edge) {
       if (edge.source === subject) {
-        conString += '<li>'+ edge.target.title +'</li>';
+        to.append('li').text(edge.target.title);
       }
     });
-    conString += '<li>+</li></ul>';
-    inspector.to.node().innerHTML = conString;
+    var addTo = to.append('li').text('+');
 
   } else {
     if (subject && subject.title === '') {
