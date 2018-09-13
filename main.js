@@ -320,11 +320,18 @@ function updateInspector(subject) {
 
     edges.forEach(function(edge) {
       if (edge.target === subject) {
-        from.append('li')
+        let li = from.append('li');
+        li.append('a')
             .text(edge.source.title)
             .on('click', function() {
               selectObj(edge.source);
             });
+        li.append('a')
+            .text(' x')
+            .on('click', function() {
+              deleteObj(edge);
+              updateInspector(subject);
+            });;
       }
     });
 
@@ -342,10 +349,17 @@ function updateInspector(subject) {
 
     edges.forEach(function(edge) {
       if (edge.source === subject) {
-        to.append('li')
+        let li = to.append('li');
+        li.append('a')
             .text(edge.target.title)
             .on('click', function() {
               selectObj(edge.target);
+            });
+        li.append('a')
+            .text(' x')
+            .on('click', function() {
+              deleteObj(edge);
+              updateInspector(subject);
             });
       }
     });
