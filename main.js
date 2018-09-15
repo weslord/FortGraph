@@ -47,8 +47,8 @@
         selected ? selected.type = this.value : null;
         update();
       });
-  inspector.from = inspector.body.append('div');
-  inspector.to = inspector.body.append('div');
+  inspector.from = inspector.body.append('div').classed('from', true);
+  inspector.to = inspector.body.append('div').classed('to', true);
   inspector.focus = function () {
     d3.event.stopPropagation();
     inspector.title.node().select();
@@ -286,7 +286,10 @@ function lineUnHover(d) {
 }
 
 function selectObj(subject) {
-  d3.event.stopPropagation();
+  if (d3.event) {
+    d3.event.stopPropagation();
+  }
+  
   if (subject === selected) {
     // TODO: re-implement for multi-select
     //       do not interfere with dblclick
@@ -309,13 +312,18 @@ function selectObj(subject) {
 }
 
 function updateInspector(subject) {
+  inspector.title.node().value = '';
+  inspector.type.node().value = '';
+  inspector.to.node().innerText = '';
+  inspector.from.node().innerText = '';
+  
   if (subject && subject.title !== '') {
     subject.selected = true;
 
     inspector.title.node().value = subject.title;
     inspector.type.node().value = subject.type;
 
-    var from = inspector.from.text('From:')
+    var from = inspector.from
         .append('ul');
 
     edges.forEach(function(edge) {
@@ -327,7 +335,7 @@ function updateInspector(subject) {
               selectObj(edge.source);
             });
         li.append('a')
-            .text(' x')
+            .text('×')
             .on('click', function() {
               deleteObj(edge);
               updateInspector(subject);
@@ -344,7 +352,7 @@ function updateInspector(subject) {
           update();
         }); 
 
-    var to = inspector.to.text('To:')
+    var to = inspector.to
         .append('ul');
 
     edges.forEach(function(edge) {
@@ -356,7 +364,7 @@ function updateInspector(subject) {
               selectObj(edge.target);
             });
         li.append('a')
-            .text(' x')
+            .text('×')
             .on('click', function() {
               deleteObj(edge);
               updateInspector(subject);
@@ -375,13 +383,8 @@ function updateInspector(subject) {
 
   } else {
     if (subject && subject.title === '') {
-      console.log(subject);
       deleteObj(subject);
     }
-    inspector.title.node().value = '';
-    inspector.type.node().value = '';
-    inspector.to.node().innerText = '';
-    inspector.from.node().innerText = '';
   }
 }
 
