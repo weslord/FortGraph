@@ -24,7 +24,7 @@
     .on('dblclick.zoom', null);
 
   var buildings = world.selectAll('g');
-  var lines     = world.selectAll('line');
+  var lines     = world.selectAll('g');
 
   var linePreview = world
       .append('line');
@@ -92,12 +92,15 @@
 }
 
 function update() {
-  lines = lines.data(edges);
-  var enter = lines.enter().append('line')
+  lines = lines.data(edges, function(d) {
+    return d.index;
+  });
+  lines.exit().remove();
+  var enter = lines.enter().append('g')
       .on('click', selectObj)
       .on('mouseover', lineHover)
       .on('mouseout', lineUnHover);
-  lines.exit().remove();
+  enter.append('line');
   lines = lines.merge(enter);
 
   buildings = buildings.data(vertices, function(d) {
@@ -146,7 +149,7 @@ function update() {
           .attr('height', 20);
       });
 
-  d3.selectAll('line').lower();
+  lines.lower();
   d3.selectAll('text').raise();
 
   simulation.nodes(vertices);
@@ -157,7 +160,7 @@ function update() {
 }
 
 function tick() {
-  lines
+  lines.selectAll('line')
       .attr('x1', function(d) {return d.source.x;})
       .attr('y1', function(d) {return d.source.y;})
       .attr('x2', function(d) {return d.target.x;})
