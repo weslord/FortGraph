@@ -23,6 +23,19 @@
     .call(d3.zoom().transform, d3.zoomIdentity.translate(width/2, height/2))
     .on('dblclick.zoom', null);
 
+  // from http://bl.ocks.org/rkirsling/5001347
+  // define arrow markers for graph links
+  svg.append('svg:defs').append('svg:marker')
+    .attr('id', 'end-arrow')
+    .attr('viewBox', '0 -5 10 10')
+    .attr('refX', 6)
+    .attr('markerWidth', 3)
+    .attr('markerHeight', 3)
+    .attr('orient', 'auto')
+  .append('svg:path')
+    .attr('d', 'M0,-5L10,0L0,5')
+    .attr('style', 'fill: #000');
+
   var buildings = world.selectAll('g');
   var lines     = world.selectAll('g');
 
@@ -100,7 +113,8 @@ function update() {
       .on('click', selectObj)
       .on('mouseover', lineHover)
       .on('mouseout', lineUnHover);
-  enter.append('path');
+  enter.append('path')
+      .style('marker-end', 'url(#end-arrow)');
   lines = lines.merge(enter);
 
   buildings = buildings.data(vertices, function(d) {
@@ -178,8 +192,18 @@ function drawPath(d) {
   const xm = x1 * 0.5 + x2 * 0.5;
   const ym = y1 * 0.5 + y2 * 0.5;
 
+  const y2a = (y2 - ym) > 0 ? y2 - 15 : y2 + 15;
+  const x2a = x2 * 0.9 + xm * 0.1;
+
   d3.select(path)
-      .attr('d', `M ${x1} ${y1} C ${x1} ${ym} ${x1} ${ym} ${xm} ${ym} S ${x2} ${ym} ${x2} ${y2}`);
+    .attr('d', `
+      M ${x1} ${y1}
+      C ${x1} ${ym}
+        ${x1} ${ym}
+        ${xm} ${ym}
+      S ${x2a} ${ym}
+        ${x2a} ${y2a}
+    `);
 }
 
 function newVertexAtMouse() {
