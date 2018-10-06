@@ -100,7 +100,7 @@ function update() {
       .on('click', selectObj)
       .on('mouseover', lineHover)
       .on('mouseout', lineUnHover);
-  enter.append('line');
+  enter.append('path');
   lines = lines.merge(enter);
 
   buildings = buildings.data(vertices, function(d) {
@@ -160,19 +160,26 @@ function update() {
 }
 
 function tick() {
-  lines.selectAll('line').each(lineTick);
+  lines.each(drawPath);
 
   buildings.attr('transform', function(d) {
     return 'translate(' + d.x + ',' + d.y + ')';
   });
 }
 
-function lineTick (d) {
-  d3.select(this)
-      .attr('x1', function(d) {return d.source.x;})
-      .attr('y1', function(d) {return d.source.y;})
-      .attr('x2', function(d) {return d.target.x;})
-      .attr('y2', function(d) {return d.target.y;});
+function drawPath(d) {
+  const path = this.children[0];
+
+  const x1 = d.source.x;
+  const x2 = d.target.x;
+  const y1 = d.source.y;
+  const y2 = d.target.y;
+
+  const xm = x1 * 0.5 + x2 * 0.5;
+  const ym = y1 * 0.5 + y2 * 0.5;
+
+  d3.select(path)
+      .attr('d', `M ${x1} ${y1} C ${x1} ${ym} ${x1} ${ym} ${xm} ${ym} S ${x2} ${ym} ${x2} ${y2}`);
 }
 
 function newVertexAtMouse() {
