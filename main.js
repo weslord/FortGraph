@@ -40,7 +40,7 @@
   var lines     = world.selectAll('g');
 
   var linePreview = world
-      .append('line');
+      .append('path');
 
   var inspector = {};
   inspector.body = d3.select('body').append('div')
@@ -183,7 +183,12 @@ function tick() {
 }
 
 function drawPath(d) {
-  const path = this.children[0];
+  let path;
+  if (this.children) {
+    path = this.children[0];
+  } else {
+    path = this.node();
+  }
 
   const x1 = d.source.x;
   const y1 = d.source.y;
@@ -277,19 +282,18 @@ function bldgDragProgress(d) {
     source.fx = d3.event.x;
     source.fy = d3.event.y;
   } else {
-    if (target) {
-      tx = target.x;
-      ty = target.y;
+    if (target && target !== source) {
+      drawPath.call(linePreview, {source, target});
     } else {
       tx = d3.mouse(world.node())[0];
       ty = d3.mouse(world.node())[1];
+      linePreview
+          .style('display', 'inline')
+          .style('marker-end', 'url(#end-arrow)')
+          .attr('d', function(d) {
+            return `M ${source.x} ${source.y} L ${tx} ${ty}`
+          });
     }
-    linePreview
-        .style('display', 'inline')
-        .attr('x1', function(d) {return source.x;})
-        .attr('y1', function(d) {return source.y;})
-        .attr('x2', function(d) {return tx;})
-        .attr('y2', function(d) {return ty;});
   }
 
   simulation.alpha(0.3).restart();
@@ -307,7 +311,6 @@ function bldgDragEnd(d) {
   } else {
     if (target) {
       if (source !== target && !edgeExists(source, target)) {
-        // change this, allow connections in either direction
         edges.push({source: source, target: target});
         updateInspector(selected);
       }
@@ -455,8 +458,7 @@ function fixBldg(subject) {
 
 function edgeExists(source, target) {
   for (var i = 0; i < edges.length; i++) {
-    if ((source === edges[i].source && target === edges[i].target) ||
-        (source === edges[i].target && target === edges[i].source)) {
+    if (source === edges[i].source && target === edges[i].target) {
       return true;
     }
   }
