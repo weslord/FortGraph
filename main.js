@@ -23,8 +23,21 @@
     .call(d3.zoom().transform, d3.zoomIdentity.translate(width/2, height/2))
     .on('dblclick.zoom', null);
 
+  // from http://bl.ocks.org/rkirsling/5001347
+  // define arrow markers for graph links
+  svg.append('svg:defs').append('svg:marker')
+    .attr('id', 'end-arrow')
+    .attr('viewBox', '0 -5 10 10')
+    .attr('refX', 6)
+    .attr('markerWidth', 3)
+    .attr('markerHeight', 3)
+    .attr('orient', 'auto')
+  .append('svg:path')
+    .attr('d', 'M0,-5L10,0L0,5')
+    .attr('style', 'fill: #000');
+
   var buildings = world.selectAll('g');
-  var lines     = world.selectAll('line');
+  var lines     = world.selectAll('g');
 
   var linePreview = world
       .append('line');
@@ -52,7 +65,7 @@
   inspector.focus = function () {
     d3.event.stopPropagation();
     inspector.title.node().select();
-  }
+  };
 
   var vertices = [];
   var edges = [];
@@ -92,12 +105,16 @@
 }
 
 function update() {
-  lines = lines.data(edges);
-  var enter = lines.enter().append('line')
+  lines = lines.data(edges, function(d) {
+    return d.index;
+  });
+  lines.exit().remove();
+  var enter = lines.enter().append('g')
       .on('click', selectObj)
       .on('mouseover', lineHover)
       .on('mouseout', lineUnHover);
-  lines.exit().remove();
+  enter.append('path')
+      .style('marker-end', 'url(#end-arrow)');
   lines = lines.merge(enter);
 
   buildings = buildings.data(vertices, function(d) {
@@ -135,18 +152,19 @@ function update() {
         });
   buildings.selectAll('rect')
       .each(function(d) {
-        var b = this.parentNode.querySelector('text').getBBox();
-        var w = b.width + 5;
+        const b = this.parentNode.querySelector('text').getBBox();
+        d.width = b.width + 5;
+        d.height = 20;
         d3.select(this)
-          .attr('width', w)
-          .attr('transform', 'translate(-'+ w/2 +','+ -10 +')')
+          .attr('width', d.width)
+          .attr('height', d.height)
+          .attr('transform', 'translate(-'+ d.width / 2 +','+ -10 +')')
           .attr('stroke', color(d.type))
           .attr('rx', 5)
-          .attr('ry', 5)
-          .attr('height', 20);
+          .attr('ry', 5);
       });
 
-  d3.selectAll('line').lower();
+  lines.lower();
   d3.selectAll('text').raise();
 
   simulation.nodes(vertices);
@@ -157,15 +175,47 @@ function update() {
 }
 
 function tick() {
-  lines
-      .attr('x1', function(d) {return d.source.x;})
-      .attr('y1', function(d) {return d.source.y;})
-      .attr('x2', function(d) {return d.target.x;})
-      .attr('y2', function(d) {return d.target.y;});
+  lines.each(drawPath);
 
   buildings.attr('transform', function(d) {
     return 'translate(' + d.x + ',' + d.y + ')';
   });
+}
+
+function drawPath(d) {
+  const path = this.children[0];
+
+  const x1 = d.source.x;
+  const y1 = d.source.y;
+  const y2 = d.target.y;
+  const x2 = d.target.x;
+  const w2 = d.target.width/2 + 3;
+  const h2 = d.target.height/2 + 3;
+
+  const dx = x1 - x2;
+  const dy = y1 - y2;
+  const m12 = dy / dx;
+  const m2 = h2 / w2;
+
+  let x2a;
+  let y2a;
+
+  if ( Math.abs(m12) > Math.abs(m2) ) {
+    // if slope of line is greater than aspect ratio of box
+    // line exits out the bottom
+    x2a = x2 + dy/Math.abs(dy) * h2 / m12;
+    y2a = y2 + dy/Math.abs(dy) * h2;
+  } else {
+    // line exits out the side
+    x2a = x2 + dx/Math.abs(dx) * w2;
+    y2a = y2 + dx/Math.abs(dx) * w2 * m12;
+  }
+
+  d3.select(path)
+    .attr('d', `
+      M ${x1} ${y1}
+      L ${x2a} ${y2a}
+    `); 
 }
 
 function newVertexAtMouse() {
@@ -339,7 +389,7 @@ function updateInspector(subject) {
             .on('click', function() {
               deleteObj(edge);
               updateInspector(subject);
-            });;
+            });
       }
     });
 

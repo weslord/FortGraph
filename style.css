@@ -107,17 +107,23 @@ rect {
   fill: #eee;
 }
 
-line.selected, .selected rect {
+path.selected, .selected rect {
+  stroke-width: 3;
+}
+
+path {
+  stroke: #000;
+  stroke-width: 2;
+  fill: none;
+}
+
+path:hover {
   stroke-width: 3;
 }
 
 line {
   stroke: #000;
   stroke-width: 2;
-}
-
-line:hover {
-  stroke-width: 3;
 }
 
 text {
