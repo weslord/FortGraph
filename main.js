@@ -65,7 +65,7 @@
   inspector.focus = function () {
     d3.event.stopPropagation();
     inspector.title.node().select();
-  }
+  };
 
   var vertices = [];
   var edges = [];
@@ -381,7 +381,7 @@ function updateInspector(subject) {
             .on('click', function() {
               deleteObj(edge);
               updateInspector(subject);
-            });;
+            });
       }
     });
 
@@ -425,7 +425,6 @@ function updateInspector(subject) {
 
   } else {
     if (subject && subject.title === '') {
-      console.log(subject);
       deleteObj(subject);
     }
     inspector.title.node().value = '';
