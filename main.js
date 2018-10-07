@@ -152,15 +152,16 @@ function update() {
         });
   buildings.selectAll('rect')
       .each(function(d) {
-        var b = this.parentNode.querySelector('text').getBBox();
-        var w = b.width + 5;
+        const b = this.parentNode.querySelector('text').getBBox();
+        d.width = b.width + 5;
+        d.height = 20;
         d3.select(this)
-          .attr('width', w)
-          .attr('transform', 'translate(-'+ w/2 +','+ -10 +')')
+          .attr('width', d.width)
+          .attr('height', d.height)
+          .attr('transform', 'translate(-'+ d.width / 2 +','+ -10 +')')
           .attr('stroke', color(d.type))
           .attr('rx', 5)
-          .attr('ry', 5)
-          .attr('height', 20);
+          .attr('ry', 5);
       });
 
   lines.lower();
@@ -185,25 +186,36 @@ function drawPath(d) {
   const path = this.children[0];
 
   const x1 = d.source.x;
-  const x2 = d.target.x;
   const y1 = d.source.y;
   const y2 = d.target.y;
+  const x2 = d.target.x;
+  const w2 = d.target.width/2 + 3;
+  const h2 = d.target.height/2 + 3;
 
-  const xm = x1 * 0.5 + x2 * 0.5;
-  const ym = y1 * 0.5 + y2 * 0.5;
+  const dx = x1 - x2;
+  const dy = y1 - y2;
+  const m12 = dy / dx;
+  const m2 = h2 / w2;
 
-  const y2a = (y2 - ym) > 0 ? y2 - 15 : y2 + 15;
-  const x2a = x2 * 0.9 + xm * 0.1;
+  let x2a;
+  let y2a;
+
+  if ( Math.abs(m12) > Math.abs(m2) ) {
+    // if slope of line is greater than aspect ratio of box
+    // line exits out the bottom
+    x2a = x2 + dy/Math.abs(dy) * h2 / m12;
+    y2a = y2 + dy/Math.abs(dy) * h2;
+  } else {
+    // line exits out the side
+    x2a = x2 + dx/Math.abs(dx) * w2;
+    y2a = y2 + dx/Math.abs(dx) * w2 * m12;
+  }
 
   d3.select(path)
     .attr('d', `
       M ${x1} ${y1}
-      C ${x1} ${ym}
-        ${x1} ${ym}
-        ${xm} ${ym}
-      S ${x2a} ${ym}
-        ${x2a} ${y2a}
-    `);
+      L ${x2a} ${y2a}
+    `); 
 }
 
 function newVertexAtMouse() {
