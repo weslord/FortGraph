@@ -1,10 +1,11 @@
-'use strict';
-{ // INIT
-  var windowWidth  = window.innerWidth,
-      windowHeight = window.innerHeight;
+import { Forces } from './forces.js';
 
-  var width  = windowWidth - 258,
-      height = windowHeight - 10;
+{
+  const windowWidth  = window.innerWidth,
+        windowHeight = window.innerHeight;
+
+  const width  = windowWidth - 258,
+        height = windowHeight - 10;
 
   var color = d3.scaleOrdinal(d3.schemeCategory10);
 
@@ -91,15 +92,7 @@
     .on('keydown', windowKeydown)
     .on('keyup', windowKeyup);
 
-  var simulation = d3.forceSimulation()
-      .force('x', d3.forceX(0))
-      .force('y', d3.forceY(0))
-      .force('link', d3.forceLink().id(function(d) {return d.id;}))
-      .force('charge', d3.forceManyBody().strength(-200))
-      .on('tick', tick);
-
-  simulation.force('x').strength(0.02);
-  simulation.force('y').strength(0.03);
+  var forces = new Forces(tick);
 
   update();
 }
@@ -167,11 +160,7 @@ function update() {
   lines.lower();
   d3.selectAll('text').raise();
 
-  simulation.nodes(vertices);
-  simulation.force('link')
-    .links(edges)
-    .distance(100)
-    .strength(0.2);
+  forces.update(vertices, edges);
 }
 
 function tick() {
@@ -245,7 +234,7 @@ function newVertex(x = 0, y = 0) {
   inspector.focus();
 
   update();
-  simulation.alpha(0.3).restart();
+  forces.restart(0.3);
   return vertex;
 }
 
@@ -263,7 +252,7 @@ function deleteObj(obj) {
   }
 
   update();
-  simulation.alpha(0.3).restart();
+  forces.restart(0.3);
 }
 
 function bldgDragStart(d) {
@@ -296,7 +285,7 @@ function bldgDragProgress(d) {
     }
   }
 
-  simulation.alpha(0.3).restart();
+  forces.restart(0.3);
 }
 
 function bldgDragEnd(d) {
@@ -447,7 +436,7 @@ function fixBldg(subject) {
     subject.fixed = false;
     subject.fx = null;
     subject.fy = null;
-    simulation.alpha(0.3).restart();
+    forces.restart(0.3);
   } else if (subject) {
     d3.select(this).classed('fixed', true);
     subject.fixed = true;
@@ -486,7 +475,7 @@ function importGraph(dirtyGraph) {
   vertices = graph.vertices;
   edges = graph.edges;
   update();
-  simulation.alpha(1).restart();
+  forces.restart(1);
 }
 
 function windowKeydown(d) {
@@ -533,18 +522,17 @@ function windowKeyup() {
 }
 
 function resize() {
-  var windowWidth = window.innerWidth,
-      windowHeight = window.innerHeight;
+  const windowWidth = window.innerWidth,
+        windowHeight = window.innerHeight;
 
-  width  = windowWidth - 258,
-  height = windowHeight - 10;
+  const width  = windowWidth - 258,
+        height = windowHeight - 10;
 
   svg
     .attr('width', width)
     .attr('height', height);
 
-  simulation
-      .alpha(0.3).restart();
+  forces.restart(0.3);
 }
 
 function zoomed() {
