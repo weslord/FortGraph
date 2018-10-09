@@ -70,7 +70,7 @@
   var vertices = [];
   var edges = [];
 
-  d3.text('industries.json').then(function(g){
+  d3.text('src/industries.json').then(function(g){
     importGraph(g);
   });
 
