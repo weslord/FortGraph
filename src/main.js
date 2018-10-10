@@ -1,4 +1,5 @@
 import { Forces } from './forces.js';
+import { Inspector } from './inspector.js';
 
 {
   const windowWidth  = window.innerWidth,
@@ -43,30 +44,7 @@ import { Forces } from './forces.js';
   var linePreview = world
       .append('path');
 
-  var inspector = {};
-  inspector.body = d3.select('body').append('div')
-      .attr('id', 'inspector');
-  inspector.title = inspector.body.append('input')
-      .on('change', function () {
-        if (this.value == '') {
-          this.value = selected.title;
-        } else {
-          selected ? selected.title = this.value : null;
-          updateInspector(selected);
-          update();
-        }
-      });
-  inspector.type = inspector.body.append('input')
-      .on('change', function () {
-        selected ? selected.type = this.value : null;
-        update();
-      });
-  inspector.from = inspector.body.append('div').classed('from', true);
-  inspector.to = inspector.body.append('div').classed('to', true);
-  inspector.focus = function () {
-    d3.event.stopPropagation();
-    inspector.title.node().select();
-  };
+  var inspector = new Inspector();
 
   var vertices = [];
   var edges = [];
@@ -116,7 +94,7 @@ function update() {
   buildings.exit().remove();
   enter = buildings.enter().append('g')
       .on('click', selectObj)
-      .on('dblclick', inspector.focus)
+      .on('dblclick', inspector.focus.bind(inspector))
       .on('mouseover', bldgHover)
       .on('mouseout', bldgUnHover)
       .call(d3.drag()
@@ -301,7 +279,7 @@ function bldgDragEnd(d) {
     if (target) {
       if (source !== target && !edgeExists(source, target)) {
         edges.push({source: source, target: target});
-        updateInspector(selected);
+        inspector.select(selected, edges);
       }
     }
   }
@@ -348,86 +326,9 @@ function selectObj(subject) {
     vertex.selected = false;
   });
 
-  updateInspector(selected);
+  inspector.select(selected, edges);
 
   update();
-}
-
-function updateInspector(subject) {
-  inspector.title.node().value = '';
-  inspector.type.node().value = '';
-  inspector.to.node().innerText = '';
-  inspector.from.node().innerText = '';
-  
-  if (subject && subject.title !== '') {
-    subject.selected = true;
-
-    inspector.title.node().value = subject.title;
-    inspector.type.node().value = subject.type;
-
-    var from = inspector.from
-        .append('ul');
-
-    edges.forEach(function(edge) {
-      if (edge.target === subject) {
-        let li = from.append('li');
-        li.append('a')
-            .text(edge.source.title)
-            .on('click', function() {
-              selectObj(edge.source);
-            });
-        li.append('a')
-            .text('×')
-            .on('click', function() {
-              deleteObj(edge);
-              updateInspector(subject);
-            });
-      }
-    });
-
-    from.append('li')
-        .text('+')
-        .on('click', function() {
-          var vertex = newVertex();
-          edges.push({source: vertex, target: subject});
-          updateInspector(vertex);
-          update();
-        }); 
-
-    var to = inspector.to
-        .append('ul');
-
-    edges.forEach(function(edge) {
-      if (edge.source === subject) {
-        let li = to.append('li');
-        li.append('a')
-            .text(edge.target.title)
-            .on('click', function() {
-              selectObj(edge.target);
-            });
-        li.append('a')
-            .text('×')
-            .on('click', function() {
-              deleteObj(edge);
-              updateInspector(subject);
-            });
-      }
-    });
-
-    to.append('li')
-        .text('+')
-        .on('click', function() {
-          var vertex = newVertex();
-          edges.push({source: subject, target: vertex});
-          updateInspector(vertex);
-          update();
-        }); 
-
-  } else {
-    if (subject && subject.title === '') {
-      deleteObj(subject);
-    }
-  }
 }
 
 function fixBldg(subject) {
