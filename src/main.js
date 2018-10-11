@@ -223,8 +223,8 @@ function newVertex(x = 0, y = 0) {
   const vertex = {id: ++lastVertexId, title: 'New', type: '', x: x, y: y};
 
   vertices.push(vertex);
-  selectObj(vertex);
-  inspector.focus();
+  //selectObj(vertex);
+  //inspector.focus();
 
   update();
   forces.restart(0.3);
@@ -294,7 +294,7 @@ function bldgDragEnd(d) {
     if (target) {
       if (source !== target && !edgeExists(source, target)) {
         edges.push({source: source, target: target});
-        inspector.select(selected, edges);
+        inspector.select(selected);
       }
     }
   }
@@ -341,7 +341,7 @@ function selectObj(subject) {
     vertex.selected = false;
   });
 
-  inspector.select(selected, edges);
+  inspector.select(selected);
 
   update();
 }
@@ -454,3 +454,5 @@ function resize() {
 function zoomed() {
   world.attr('transform', d3.event.transform);
 }
+
+export { update, newVertex, deleteObj, selectObj, edges };

@@ -1,3 +1,5 @@
+import { update, newVertex, deleteObj, selectObj, edges } from './main.js';
+
 function Inspector () {
   const self = this;
   this.selected = {};
@@ -10,13 +12,15 @@ function Inspector () {
         } else {
           self.selected ? self.selected.title = this.value : null;
           //self.select(self.selected); // no edges defined
-          //update(); // external function
+          // external function
+          update();
         }
       });
   this.type = this.body.append('input')
       .on('change', function () {
         self.selected ? self.selected.type = this.value : null;
-        //update(); //external function
+        // external function
+        update();
       });
   this.from = this.body.append('div').classed('from', true);
   this.to = this.body.append('div').classed('to', true);
@@ -27,7 +31,7 @@ Inspector.prototype.focus = function () {
   this.title.node().select();
 };
 
-Inspector.prototype.select = function (subject, edges) {
+Inspector.prototype.select = function (subject) {
   this.selected = subject;
 
   this.title.node().value = '';
@@ -46,18 +50,18 @@ Inspector.prototype.select = function (subject, edges) {
 
 
     //embed in subject: subject.targets
-    edges.forEach(function(edge) {
+    edges.forEach( (edge) => {
       if (edge.target === subject) {
         const li = from.append('li');
         li.append('a')
             .text(edge.source.title)
-            .on('click', function() {
+            .on('click', () => {
               // external function
               selectObj(edge.source);
             });
         li.append('a')
             .text('×')
-            .on('click', function() {
+            .on('click', () => {
               // external function
               deleteObj(edge);
               this.select(subject);
@@ -67,11 +71,12 @@ Inspector.prototype.select = function (subject, edges) {
 
     from.append('li')
         .text('+')
-        .on('click', function() {
+        .on('click', () => {
           const vertex = newVertex();
           edges.push({source: vertex, target: subject});
           this.select(vertex);
-          //update();
+          // external function
+          update();
         });
 
     const to = this.to
@@ -79,18 +84,18 @@ Inspector.prototype.select = function (subject, edges) {
 
 
     //embed in subject: subject.sources
-    edges.forEach(function(edge) {
+    edges.forEach( (edge) => {
       if (edge.source === subject) {
         const li = to.append('li');
         li.append('a')
             .text(edge.target.title)
-            .on('click', function() {
+            .on('click', () => {
               // external function
               selectObj(edge.target);
             });
         li.append('a')
             .text('×')
-            .on('click', function() {
+            .on('click', () => {
               // external function
               deleteObj(edge);
               this.select(subject);
@@ -100,11 +105,12 @@ Inspector.prototype.select = function (subject, edges) {
 
     to.append('li')
         .text('+')
-        .on('click', function() {
+        .on('click', () => {
           const vertex = newVertex();
           edges.push({source: subject, target: vertex});
           this.select(vertex);
-          //update();
+          // external function
+          update();
         });
 
   } else {
