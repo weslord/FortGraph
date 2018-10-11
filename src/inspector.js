@@ -1,5 +1,5 @@
 function Inspector () {
-  var self = this;
+  const self = this;
   this.selected = {};
   this.body = d3.select('body').append('div')
       .attr('id', 'inspector');
@@ -41,14 +41,14 @@ Inspector.prototype.select = function (subject, edges) {
     this.title.node().value = subject.title;
     this.type.node().value = subject.type;
 
-    var from = this.from
+    const from = this.from
         .append('ul');
 
 
     //embed in subject: subject.targets
     edges.forEach(function(edge) {
       if (edge.target === subject) {
-        let li = from.append('li');
+        const li = from.append('li');
         li.append('a')
             .text(edge.source.title)
             .on('click', function() {
@@ -68,20 +68,20 @@ Inspector.prototype.select = function (subject, edges) {
     from.append('li')
         .text('+')
         .on('click', function() {
-          var vertex = newVertex();
+          const vertex = newVertex();
           edges.push({source: vertex, target: subject});
           this.select(vertex);
           //update();
         });
 
-    var to = this.to
+    const to = this.to
         .append('ul');
 
 
     //embed in subject: subject.sources
     edges.forEach(function(edge) {
       if (edge.source === subject) {
-        let li = to.append('li');
+        const li = to.append('li');
         li.append('a')
             .text(edge.target.title)
             .on('click', function() {
@@ -101,7 +101,7 @@ Inspector.prototype.select = function (subject, edges) {
     to.append('li')
         .text('+')
         .on('click', function() {
-          var vertex = newVertex();
+          const vertex = newVertex();
           edges.push({source: subject, target: vertex});
           this.select(vertex);
           //update();

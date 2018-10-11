@@ -1,6 +1,28 @@
 import { Forces } from './forces.js';
 import { Inspector } from './inspector.js';
 
+// Globals
+var svg;
+var world;
+var inspector;
+var linePreview;
+
+var color;
+var forces;
+
+var buildings;
+var lines;
+var edges;
+var vertices;
+
+var source = null,
+    target = null,
+    selected = null,
+    line   = null; // rename this (represents an edge)
+
+var dragging = true;
+var ctrlPressed = false;
+
 {
   const windowWidth  = window.innerWidth,
         windowHeight = window.innerHeight;
@@ -8,13 +30,13 @@ import { Inspector } from './inspector.js';
   const width  = windowWidth - 258,
         height = windowHeight - 10;
 
-  var color = d3.scaleOrdinal(d3.schemeCategory10);
+  color = d3.scaleOrdinal(d3.schemeCategory10);
 
-  var svg = d3.select('body').append('svg')
+  svg = d3.select('body').append('svg')
       .attr('width', width)
       .attr('height', height);
 
-  var world = svg.append('g')
+  world = svg.append('g')
       .attr('id', 'world')
       .attr('transform', 'translate('+width/2+','+height/2+')');
 
@@ -38,28 +60,21 @@ import { Inspector } from './inspector.js';
     .attr('d', 'M 0 -5 L 10 0 L 0 5')
     .attr('style', 'fill: #000; stroke: none');
 
-  var buildings = world.selectAll('g');
-  var lines     = world.selectAll('g');
+  buildings = world.selectAll('g');
+  lines     = world.selectAll('g');
 
-  var linePreview = world
+  linePreview = world
       .append('path');
 
-  var inspector = new Inspector();
+  inspector = new Inspector();
 
-  var vertices = [];
-  var edges = [];
+  vertices = [];
+  edges = [];
 
   d3.text('src/industries.json').then(function(g){
     importGraph(g);
   });
 
-  var source = null,
-      target = null,
-      selected = null,
-      line   = null; // rename this (represents an edge)
-
-  var dragging = true;
-  var ctrlPressed = false;
   
   window.addEventListener("resize", resize);
 
@@ -70,7 +85,7 @@ import { Inspector } from './inspector.js';
     .on('keydown', windowKeydown)
     .on('keyup', windowKeyup);
 
-  var forces = new Forces(tick);
+  forces = new Forces(tick);
 
   update();
 }
@@ -80,7 +95,7 @@ function update() {
     return d.index;
   });
   lines.exit().remove();
-  var enter = lines.enter().append('g')
+  let enter = lines.enter().append('g')
       .on('click', selectObj)
       .on('mouseover', lineHover)
       .on('mouseout', lineUnHover);
@@ -118,7 +133,7 @@ function update() {
       .text(function(d) {return d.title;})
       .attr('height', 10)
       .attr('transform', function() {
-         var b = this.getBBox();
+         const b = this.getBBox();
          return 'translate(-'+ b.width/2 +','+ 10/2 +')';
         });
   buildings.selectAll('rect')
@@ -191,13 +206,13 @@ function drawPath(d) {
 }
 
 function newVertexAtMouse() {
-  var x = d3.mouse(world.node())[0];
-  var y = d3.mouse(world.node())[1];
+  const x = d3.mouse(world.node())[0];
+  const y = d3.mouse(world.node())[1];
   newVertex(x, y);
 }
 
 function newVertex(x = 0, y = 0) {
-  var lastVertexId = 0;
+  let lastVertexId = 0;
 
   vertices.forEach(function(vertex){
     if (vertex.id > lastVertexId) {
@@ -205,7 +220,7 @@ function newVertex(x = 0, y = 0) {
     }
   });
   
-  var vertex = {id: ++lastVertexId, title: 'New', type: '', x: x, y: y};
+  const vertex = {id: ++lastVertexId, title: 'New', type: '', x: x, y: y};
 
   vertices.push(vertex);
   selectObj(vertex);
@@ -244,7 +259,7 @@ function bldgDragStart(d) {
 }
 
 function bldgDragProgress(d) {
-  var tx, ty;
+  let tx, ty;
   if (dragging) {
     source.fx = d3.event.x;
     source.fy = d3.event.y;
@@ -347,7 +362,7 @@ function fixBldg(subject) {
 }
 
 function edgeExists(source, target) {
-  for (var i = 0; i < edges.length; i++) {
+  for (let i = 0; i < edges.length; i++) {
     if (source === edges[i].source && target === edges[i].target) {
       return true;
     }
@@ -355,20 +370,20 @@ function edgeExists(source, target) {
 }
 
 function exportGraph() {
-  var cleanEdges = edges.map(function(edge) {
-    var cleanEdge = Object.assign({}, edge);
+  const cleanEdges = edges.map(function(edge) {
+    let cleanEdge = Object.assign({}, edge);
     cleanEdge.source = cleanEdge.source.id;
     cleanEdge.target = cleanEdge.target.id;
     return cleanEdge;
   });
 
-  var cleanGraph = {vertices: vertices, edges: cleanEdges};
+  const cleanGraph = {vertices: vertices, edges: cleanEdges};
   return JSON.stringify(cleanGraph);
 }
 
 function importGraph(dirtyGraph) {
   // TODO: check for duplicate IDs
-  var graph = JSON.parse(dirtyGraph);
+  const graph = JSON.parse(dirtyGraph);
 
   vertices = [];
   edges = [];
