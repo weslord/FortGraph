@@ -1,4 +1,4 @@
-import { update, newVertex, deleteObj, selectObj, edges } from './main.js';
+import { graph, newVertex, deleteObj, selectObj, edges } from './main.js';
 
 function Inspector () {
   const self = this;
@@ -13,14 +13,14 @@ function Inspector () {
           self.selected ? self.selected.title = this.value : null;
           //self.select(self.selected); // no edges defined
           // external function
-          update();
+          graph.update();
         }
       });
   this.type = this.body.append('input')
       .on('change', function () {
         self.selected ? self.selected.type = this.value : null;
         // external function
-        update();
+        graph.update();
       });
   this.from = this.body.append('div').classed('from', true);
   this.to = this.body.append('div').classed('to', true);
@@ -76,7 +76,7 @@ Inspector.prototype.select = function (subject) {
           edges.push({source: vertex, target: subject});
           this.select(vertex);
           // external function
-          update();
+          graph.update();
         });
 
     const to = this.to
@@ -110,7 +110,7 @@ Inspector.prototype.select = function (subject) {
           edges.push({source: subject, target: vertex});
           this.select(vertex);
           // external function
-          update();
+          graph.update();
         });
 
   } else {

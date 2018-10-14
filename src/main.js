@@ -2,18 +2,14 @@ import { Forces } from './forces.js';
 import { Inspector } from './inspector.js';
 
 // Globals
-var svg;
-var world;
-var inspector;
+var inspector = new Inspector();
 var linePreview;
 
-var color;
+var color = d3.scaleOrdinal(d3.schemeCategory10);
 var forces;
 
-var buildings;
-var lines;
-var edges;
-var vertices;
+var edges = [];
+var vertices = [];
 
 var source = null,
     target = null,
@@ -23,33 +19,29 @@ var source = null,
 var dragging = true;
 var ctrlPressed = false;
 
-{
+function Graph () {
   const windowWidth  = window.innerWidth,
         windowHeight = window.innerHeight;
 
   const width  = windowWidth - 258,
         height = windowHeight - 10;
 
-  color = d3.scaleOrdinal(d3.schemeCategory10);
-
-  svg = d3.select('body').append('svg')
+  this.svg = d3.select('body').append('svg')
       .attr('width', width)
       .attr('height', height);
 
-  world = svg.append('g')
+  this.world = this.svg.append('g')
       .attr('id', 'world')
       .attr('transform', 'translate('+width/2+','+height/2+')');
 
-  svg
+  this.svg
     .call(d3.zoom()
         .scaleExtent([1/8, 2])
         .on('zoom', zoomed))
     .call(d3.zoom().transform, d3.zoomIdentity.translate(width/2, height/2))
     .on('dblclick.zoom', null);
 
-  // from http://bl.ocks.org/rkirsling/5001347
-  // define arrow markers for graph links
-  svg.append('svg:defs').append('svg:marker')
+  this.svg.append('svg:defs').append('svg:marker')
     .attr('id', 'end-arrow')
     .attr('viewBox', '0 -5 15 10')
     .attr('refX', 7.5)
@@ -60,54 +52,48 @@ var ctrlPressed = false;
     .attr('d', 'M 0 -5 L 10 0 L 0 5')
     .attr('style', 'fill: #000; stroke: none');
 
-  buildings = world.selectAll('g');
-  lines     = world.selectAll('g');
+  this.buildings = this.world.selectAll('g');
+  this.lines     = this.world.selectAll('g');
 
-  linePreview = world
+  linePreview = this.world
       .append('path');
-
-  inspector = new Inspector();
-
-  vertices = [];
-  edges = [];
 
   d3.text('src/industries.json').then(function(g){
     importGraph(g);
   });
 
-  
   window.addEventListener("resize", resize);
 
-  svg.on('dblclick', newVertexAtMouse);
-  svg.on('click', selectObj);
+  this.svg.on('dblclick', newVertexAtMouse);
+  this.svg.on('click', selectObj);
 
   d3.select(window)
     .on('keydown', windowKeydown)
     .on('keyup', windowKeyup);
 
-  forces = new Forces(tick);
+  forces = new Forces(this.tick.bind(this));
 
-  update();
+  this.update();
 }
 
-function update() {
-  lines = lines.data(edges, function(d) {
+Graph.prototype.update = function () {
+  this.lines = this.lines.data(edges, function(d) {
     return d.index;
   });
-  lines.exit().remove();
-  let enter = lines.enter().append('g')
+  this.lines.exit().remove();
+  let enter = this.lines.enter().append('g')
       .on('click', selectObj)
       .on('mouseover', lineHover)
       .on('mouseout', lineUnHover);
   enter.append('path')
       .style('marker-end', 'url(#end-arrow)');
-  lines = lines.merge(enter);
+  this.lines = this.lines.merge(enter);
 
-  buildings = buildings.data(vertices, function(d) {
+  this.buildings = this.buildings.data(vertices, function(d) {
     return d.id;
   });
-  buildings.exit().remove();
-  enter = buildings.enter().append('g')
+  this.buildings.exit().remove();
+  enter = this.buildings.enter().append('g')
       .on('click', selectObj)
       .on('dblclick', inspector.focus.bind(inspector))
       .on('mouseover', bldgHover)
@@ -120,23 +106,23 @@ function update() {
   enter.append('text');
   enter.append('rect');
 
-  buildings = buildings.merge(enter);
+  this.buildings = this.buildings.merge(enter);
 
-  buildings.classed('selected', function (d) {
+  this.buildings.classed('selected', function (d) {
     return d.selected;
   });
-  lines.classed('selected', function (d) {
+  this.lines.classed('selected', function (d) {
     return d.selected;
   });
 
-  buildings.selectAll('text')
+  this.buildings.selectAll('text')
       .text(function(d) {return d.title;})
       .attr('height', 10)
       .attr('transform', function() {
          const b = this.getBBox();
          return 'translate(-'+ b.width/2 +','+ 10/2 +')';
         });
-  buildings.selectAll('rect')
+  this.buildings.selectAll('rect')
       .each(function(d) {
         const b = this.parentNode.querySelector('text').getBBox();
         d.width = b.width + 5;
@@ -150,16 +136,16 @@ function update() {
           .attr('ry', 5);
       });
 
-  lines.lower();
+  this.lines.lower();
   d3.selectAll('text').raise();
 
   forces.update(vertices, edges);
 }
 
-function tick() {
-  lines.each(drawPath);
+Graph.prototype.tick = function () {
+  this.lines.each(drawPath);
 
-  buildings.attr('transform', function(d) {
+  this.buildings.attr('transform', function(d) {
     return 'translate(' + d.x + ',' + d.y + ')';
   });
 }
@@ -206,6 +192,7 @@ function drawPath(d) {
 }
 
 function newVertexAtMouse() {
+  const world = d3.select('#world');
   const x = d3.mouse(world.node())[0];
   const y = d3.mouse(world.node())[1];
   newVertex(x, y);
@@ -226,7 +213,7 @@ function newVertex(x = 0, y = 0) {
   //selectObj(vertex);
   //inspector.focus();
 
-  update();
+  graph.update();
   forces.restart(0.3);
   return vertex;
 }
@@ -244,7 +231,7 @@ function deleteObj(obj) {
     edges.splice(edges.indexOf(obj), 1);
   }
 
-  update();
+  graph.update();
   forces.restart(0.3);
 }
 
@@ -259,6 +246,7 @@ function bldgDragStart(d) {
 }
 
 function bldgDragProgress(d) {
+  const world = d3.select('#world');
   let tx, ty;
   if (dragging) {
     source.fx = d3.event.x;
@@ -299,7 +287,7 @@ function bldgDragEnd(d) {
     }
   }
 
-  update();
+  graph.update();
 }
 
 function bldgHover(d) {
@@ -343,7 +331,7 @@ function selectObj(subject) {
 
   inspector.select(selected);
 
-  update();
+  graph.update();
 }
 
 function fixBldg(subject) {
@@ -383,14 +371,14 @@ function exportGraph() {
 
 function importGraph(dirtyGraph) {
   // TODO: check for duplicate IDs
-  const graph = JSON.parse(dirtyGraph);
+  const cleanGraph = JSON.parse(dirtyGraph);
 
   vertices = [];
   edges = [];
 
-  vertices = graph.vertices;
-  edges = graph.edges;
-  update();
+  vertices = cleanGraph.vertices;
+  edges = cleanGraph.edges;
+  graph.update();
   forces.restart(1);
 }
 
@@ -402,17 +390,17 @@ function windowKeydown(d) {
       case 18: // alt
       case 91: // cmd
         ctrlPressed = true;
-        svg.attr('style', 'cursor: pointer');
+        d3.select('svg').attr('style', 'cursor: pointer');
         break;
       case 8:  // backspace
       case 46: // delete
       case 68: // d
         d3.event.preventDefault();
-        world.selectAll('.selected').each(deleteObj);
+        d3.select('world').selectAll('.selected').each(deleteObj);
         target = null;
         break;
        case 80: // p
-        world.selectAll('.selected').each(fixBldg);
+        d3.select('world').selectAll('.selected').each(fixBldg);
         break;
       case 27: // esc
         selectObj(null);
@@ -430,7 +418,7 @@ function windowKeyup() {
     case 18: // alt
     case 91: // cmd
       ctrlPressed = false;
-      svg.attr('style', 'cursor: default');
+      d3.select('svg').attr('style', 'cursor: default');
       break;
     default:
       break;
@@ -444,7 +432,7 @@ function resize() {
   const width  = windowWidth - 258,
         height = windowHeight - 10;
 
-  svg
+  d3.select('svg')
     .attr('width', width)
     .attr('height', height);
 
@@ -452,7 +440,9 @@ function resize() {
 }
 
 function zoomed() {
-  world.attr('transform', d3.event.transform);
+  d3.select('world').attr('transform', d3.event.transform);
 }
 
-export { update, newVertex, deleteObj, selectObj, edges };
+var graph = new Graph();
+
+export { graph, newVertex, deleteObj, selectObj, edges };
