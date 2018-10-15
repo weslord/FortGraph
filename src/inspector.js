@@ -47,31 +47,36 @@ Inspector.prototype.select = function (subject) {
 
     const from = this.from
         .append('ul');
+    const to = this.to
+        .append('ul');
 
+    const sources = edges.filter( edge => edge.target === subject );
+    const targets = edges.filter( edge => edge.source === subject );
 
-    //embed in subject: subject.targets
-    edges.forEach( (edge) => {
-      if (edge.target === subject) {
-        const li = from.append('li');
-        li.append('a')
-            .text(edge.source.title)
-            .on('click', () => {
-              // external function
-              selectObj(edge.source);
-            });
-        li.append('a')
-            .text('×')
-            .on('click', () => {
-              // external function
-              deleteObj(edge);
-              this.select(subject);
-            });
-      }
-    });
+    let f = from.selectAll('li').data(sources);
+
+    let li = f.enter()
+      .append('li');
+
+    li.append('a')
+        .text(edge => edge.source.title)
+        .on('click', (edge) => {
+          // external function
+          selectObj(edge.source);
+        });
+
+    li.append('a')
+        .text('×')
+        .on('click', (edge) => {
+          // external function
+          deleteObj(edge);
+          this.select(subject);
+        });
 
     from.append('li')
         .text('+')
         .on('click', () => {
+          // external function
           const vertex = newVertex();
           edges.push({source: vertex, target: subject});
           this.select(vertex);
@@ -79,29 +84,26 @@ Inspector.prototype.select = function (subject) {
           graph.update();
         });
 
-    const to = this.to
-        .append('ul');
 
+    let t = to.selectAll('li').data(targets);
 
-    //embed in subject: subject.sources
-    edges.forEach( (edge) => {
-      if (edge.source === subject) {
-        const li = to.append('li');
-        li.append('a')
-            .text(edge.target.title)
-            .on('click', () => {
-              // external function
-              selectObj(edge.target);
-            });
-        li.append('a')
-            .text('×')
-            .on('click', () => {
-              // external function
-              deleteObj(edge);
-              this.select(subject);
-            });
-      }
-    });
+    li = t.enter()
+      .append('li');
+
+    li.append('a')
+        .text(edge => edge.target.title)
+        .on('click', (edge) => {
+          // external function
+          selectObj(edge.target);
+        });
+
+    li.append('a')
+        .text('×')
+        .on('click', (edge) => {
+          // external function
+          deleteObj(edge);
+          this.select(subject);
+        });
 
     to.append('li')
         .text('+')
@@ -113,11 +115,9 @@ Inspector.prototype.select = function (subject) {
           graph.update();
         });
 
-  } else {
-    if (subject && subject.title === '') {
-      // external function
-      deleteObj(subject);
-    }
+  } else if (subject && subject.title === '') {
+    // external function
+    deleteObj(subject);
   }
 }
 
